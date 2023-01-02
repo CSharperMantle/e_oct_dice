@@ -4,8 +4,8 @@
 #include "inv_mpu_dmp_motion_driver.h"
 
 #define MPU_GYRO_FSR 2000
-#define MPU_REFRESH_RATE_HZ 25
-#define MPU_DMP_REFRESH_RATE_HZ 25
+#define MPU_REFRESH_RATE_HZ 200
+#define MPU_DMP_REFRESH_RATE_HZ 200
 #define MPU_F_GYRO_SENS ( 131.0f * 250.f / (float)MPU_GYRO_FSR )
 #define MPU_F_QUAT_SENS ( 1073741824.f )
 
