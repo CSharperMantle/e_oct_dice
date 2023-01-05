@@ -1973,7 +1973,7 @@ int mpu_read_mem(unsigned short mem_addr, unsigned short length,
 int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
     unsigned short start_addr, unsigned short sample_rate)
 {
-    unsigned short ii = 0, jj = 0, kk = 0;
+    unsigned short ii = 0, jj = 0, k_avoid_compiler_optim_ = 0;
     unsigned short this_write;
     /* Must divide evenly into st.hw->bank_size to avoid bank crossings. */
 #define LOAD_CHUNK  (16)
@@ -1996,9 +1996,6 @@ int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
                 return -2;
             }
         }
-        delay_ms(20);
-        // log_i("Chunk #%u loaded and verified.\r\n", kk);
-        // kk++;
     }
 
     /* Set program start address. */

@@ -15,18 +15,6 @@
 #include "fw_util.h"
 #include "fw_sys.h"
 
-void UTIL_Uart1_24M_9600_Init(void)
-{
-    SCON = 0x50;		//8 bits and variable baudrate
-	AUXR |= 0x40;		//imer clock is 1T mode
-	AUXR &= 0xFE;		//UART 1 use Timer1 as baudrate generator
-	TMOD &= 0x0F;		//Set timer work mode
-	TL1 = 0x8F;		//Initial timer value
-	TH1 = 0xFD;		//Initial timer value
-	ET1 = 0;		//Disable Timer%d interrupt
-	TR1 = 1;		//Timer1 start run
-}
-
 void UTIL_Uart1_24M_115200_Init(void)
 {
 	SCON = 0x50;		//8 bits and variable baudrate
@@ -37,64 +25,4 @@ void UTIL_Uart1_24M_115200_Init(void)
 	TH1 = 0xFF;		//Initial timer value
 	ET1 = 0;		//Disable Timer%d interrupt
 	TR1 = 1;		//Timer1 start run
-}
-
-void UTIL_Uart1_33M1776_9600_Init(void)
-{
-	SCON = 0x50;		//8 bits and variable baudrate
-	AUXR |= 0x40;		//imer clock is 1T mode
-	AUXR &= 0xFE;		//UART 1 use Timer1 as baudrate generator
-	TMOD &= 0x0F;		//Set timer work mode
-	TL1 = 0xA0;		//Initial timer value
-	TH1 = 0xFC;		//Initial timer value
-	ET1 = 0;		//Disable Timer%d interrupt
-	TR1 = 1;		//Timer1 start run
-}
-
-void UTIL_Uart1_33M1776_115200_Init(void)
-{
-	SCON = 0x50;
-	AUXR |= 0x40;
-	AUXR &= 0xFE;
-	TMOD &= 0x0F;
-	TL1 = 0xB8;
-	TH1 = 0xFF;
-	ET1 = 0;
-	TR1 = 1;
-}
-
-void UTIL_Uart1_35M_9600_Init(void)
-{
-	SCON = 0x50;
-	AUXR |= 0x40;
-	AUXR &= 0xFE;
-	TMOD &= 0x0F;
-	TL1 = 0x70;
-	TH1 = 0xFC;
-	ET1 = 0;
-	TR1 = 1;
-}
-
-void UTIL_Uart1_36M864_9600_Init(void)
-{
-	SCON = 0x50;
-	AUXR |= 0x40;
-	AUXR &= 0xFE;
-	TMOD &= 0x0F;
-	TL1 = 0x40;
-	TH1 = 0xFC;
-	ET1 = 0;
-	TR1 = 1;
-}
-
-void UTIL_Uart1_36M864_115200_Init(void)
-{
-	SCON = 0x50;
-	AUXR |= 0x40;
-	AUXR &= 0xFE;
-	TMOD &= 0x0F;
-	TL1 = 0xB0;
-	TH1 = 0xFF;
-	ET1 = 0;
-	TR1 = 1;
 }
