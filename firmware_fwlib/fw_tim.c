@@ -97,23 +97,3 @@ void TIM_Timer2_Config(HAL_State_t freq1t, uint8_t prescaler, uint16_t frequency
     TIM_Timer2_SetPreScaler(prescaler);
     TIM_Timer2_SetInitValue(init >> 8, init & 0xFF);
 }
-
-void TIM_Timer3_Config(
-    HAL_State_t freq1t, uint8_t prescaler, uint16_t frequency, HAL_State_t intState)
-{
-    uint16_t init = _TIM_Timer234_InitValueCalculate(frequency, prescaler, freq1t);
-    TIM_Timer3_Set1TMode(freq1t);
-    TIM_Timer3_SetPreScaler(prescaler);
-    TIM_Timer3_SetInitValue(init >> 8, init & 0xFF);
-    EXTI_Timer3_SetIntState(intState);
-}
-
-void TIM_Timer4_Config(
-    HAL_State_t freq1t, uint8_t prescaler, uint16_t frequency, HAL_State_t intState)
-{
-    uint16_t init = _TIM_Timer234_InitValueCalculate(frequency, prescaler, freq1t);
-    TIM_Timer4_Set1TMode(freq1t);
-    TIM_Timer4_SetPreScaler(prescaler);
-    TIM_Timer4_SetInitValue(init >> 8, init & 0xFF);
-    EXTI_Timer4_SetIntState(intState);
-}

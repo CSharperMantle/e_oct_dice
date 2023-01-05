@@ -15,8 +15,6 @@
 #include "fw_util.h"
 #include "fw_sys.h"
 
-__CODE char HEX_TABLE[16] = { '0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-
 void UTIL_Uart1_24M_9600_Init(void)
 {
     SCON = 0x50;		//8 bits and variable baudrate

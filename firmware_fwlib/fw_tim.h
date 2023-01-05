@@ -85,39 +85,4 @@ void TIM_Timer1_Config(HAL_State_t freq1t, TIM_TimerMode_t mode, uint16_t freque
 
 void TIM_Timer2_Config(HAL_State_t freq1t, uint8_t prescaler, uint16_t frequency);
 
-
-/***************************** /
- * Timer 3
-*/
-#define TIM_Timer3_SetRunState(__STATE__)   SFR_ASSIGN(T4T3M, 3, __STATE__)
-#define TIM_Timer3_FuncCounter              SFR_SET(T4T3M, 2)
-#define TIM_Timer3_FuncTimer                SFR_RESET(T4T3M, 2)
-// ON:FOSC, OFF:FOSC/12
-#define TIM_Timer3_Set1TMode(__STATE__)     SFR_ASSIGN(T4T3M, 1, __STATE__)
-// Enable output on P0.4
-#define TIM_Timer3_SetOutput(__STATE__)     SFR_ASSIGN(T4T3M, 0, __STATE__)
-#define TIM_Timer3_SetInitValue(__TH__, __TL__)  do{ T3H = (__TH__); T3L = (__TL__); }while(0)
-// Timer3 Prescaler: [0, 255]
-#define TIM_Timer3_SetPreScaler(__PRE__)  do{SFRX_ON(); TM3PS = (__PRE__); SFRX_OFF();}while(0)
-
-void TIM_Timer3_Config(HAL_State_t freq1t, uint8_t prescaler, uint16_t frequency, HAL_State_t intState);
-
-
-/***************************** /
- * Timer 4
-*/
-#define TIM_Timer4_SetRunState(__STATE__)   SFR_ASSIGN(T4T3M, 7, __STATE__)
-#define TIM_Timer4_FuncCounter              SFR_SET(T4T3M, 6)
-#define TIM_Timer4_FuncTimer                SFR_RESET(T4T3M, 6)
-// ON:FOSC, OFF:FOSC/12
-#define TIM_Timer4_Set1TMode(__STATE__)     SFR_ASSIGN(T4T3M, 5, __STATE__)
-// Enable output on P0.7
-#define TIM_Timer4_SetOutput(__STATE__)     SFR_ASSIGN(T4T3M, 4, __STATE__)
-#define TIM_Timer4_SetInitValue(__TH__, __TL__)  do{ T4H = (__TH__); T4L = (__TL__); }while(0)
-// Timer4 Prescaler: [0, 255]
-#define TIM_Timer4_SetPreScaler(__PRE__)  do{SFRX_ON(); TM4PS = (__PRE__); SFRX_OFF();}while(0)
-
-void TIM_Timer4_Config(HAL_State_t freq1t, uint8_t prescaler, uint16_t frequency, HAL_State_t intState);
-
-
 #endif

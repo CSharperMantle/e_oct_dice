@@ -161,8 +161,6 @@ typedef enum
                                         SFRX_OFF();                                 \
                                     } while(0)
 
-void SYS_SetClock(void);
-void SYS_TrimClock(uint8_t vrtrim, uint8_t irtrim);
 void SYS_Delay(uint16_t t);
 void SYS_DelayUs(uint16_t t);
 uint32_t SYS_GetSysClock(void);

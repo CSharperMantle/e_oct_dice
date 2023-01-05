@@ -32,40 +32,9 @@ __CODE uint16_t ticks_ms    = (__CONF_FOSC / ((__CONF_CLKDIV == 0)? 1 : __CONF_C
 __CODE uint8_t  ticks_us    = (__CONF_FOSC / ((__CONF_CLKDIV == 0)? 1 : __CONF_CLKDIV) / __CLK_REF / 1000);
 
 
-/**
- * Change system clock
- * - For SDCC only.
- * - For Keil C51, trim IRC in STC-ISP will be more accurate
- * - Invoke this in the beginning of main()
-*/
-void SYS_SetClock(void)
-{
-#if defined (SDCC) || defined (__SDCC)
-    uint16_t i = 0; uint8_t j = 5;
-    P_SW2 = 0x80;
-    if (CLKDIV != (__CONF_CLKDIV))
-    {
-        CLKDIV = (__CONF_CLKDIV);
-        do { // Wait a while after clock changed, or it may block the main process
-            while (--i);
-        } while (--j);
-    }
-    P_SW2 = 0x00;
-    SYS_SetFOSC(__CONF_IRCBAND, __CONF_VRTRIM, __CONF_IRTRIM, __CONF_LIRTRIM);
-    while (--i); // Wait
-#endif
-}
-
-void SYS_TrimClock(uint8_t vrtrim, uint8_t irtrim)
-{
-    uint16_t i = 0;
-    SYS_SetFOSC(__CONF_IRCBAND, vrtrim, irtrim, __CONF_LIRTRIM);
-    while (--i); // Wait
-}
-
 void SYS_Delay(uint16_t t)
 {
-    uint16_t i;
+    volatile uint16_t i;
     do
     {
         i = ticks_ms;
@@ -75,7 +44,7 @@ void SYS_Delay(uint16_t t)
 
 void SYS_DelayUs(uint16_t t)
 {
-    uint8_t i;
+    volatile uint8_t i;
     do
     {
         i = ticks_us;

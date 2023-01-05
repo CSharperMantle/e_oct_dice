@@ -17,7 +17,6 @@
  *                  MPU9150 (or MPU6050 w/ AK8975 on the auxiliary bus)
  *                  MPU9250 (or MPU6500 w/ AK8963 on the auxiliary bus)
  */
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -39,15 +38,32 @@
 
 #define i2c_write(addr, reg, len, data_) (I2C_Write(addr, reg, data_, len) != HAL_OK)
 #define i2c_read(addr, reg, len, data_) (I2C_Read(addr, reg, data_, len) != HAL_OK)
-#define delay_ms                SYS_Delay
-#define get_ms                  (void)
-static int reg_int_cb(struct int_param_s *int_param)
-{
-    return 0;
-}
+#define delay_ms(ms)            SYS_Delay(ms)
+#define get_ms(ptr)             ;
+#define reg_int_cb(param)       (0)
 #define log_i                   (void)
 #define log_e                   (void)
 #define min(a, b)               (((a) < (b)) ? (a) : (b))
+static uint8_t eeprom_read_bytes(uint16_t addr, uint8_t *buf, uint8_t size) compact
+{
+    IAP_SetEnabled(HAL_State_ON);
+    do
+    {
+        IAP_CmdRead(addr);
+        if (IAP_IsCmdFailed())
+        {
+            return HAL_ERROR;
+        }
+        else
+        {
+            *buf = IAP_ReadData();
+            buf++;
+            addr++;
+        }
+    } while (--size);
+    IAP_SetEnabled(HAL_State_OFF);
+    return HAL_OK;
+}
 
 #if !defined MPU6050 && !defined MPU9150 && !defined MPU6500 && !defined MPU9250
 #error  Which gyro are you using? Define MPUxxxx in your compiler options.
@@ -1957,29 +1973,32 @@ int mpu_read_mem(unsigned short mem_addr, unsigned short length,
 int mpu_load_firmware(unsigned short length, const unsigned char *firmware,
     unsigned short start_addr, unsigned short sample_rate)
 {
-    unsigned short ii, jj;
+    unsigned short ii = 0, jj = 0, kk = 0;
     unsigned short this_write;
     /* Must divide evenly into st.hw->bank_size to avoid bank crossings. */
 #define LOAD_CHUNK  (16)
-    unsigned char cur[LOAD_CHUNK], tmp[2];
+    unsigned char cur[LOAD_CHUNK], firmware_chunk[LOAD_CHUNK], tmp[2];
 
     if (st.chip_cfg.dmp_loaded)
         /* DMP should only be loaded once. */
         return -1;
 
-    if (!firmware)
-        return -1;
     for (ii = 0; ii < length; ii += this_write) {
         this_write = min(LOAD_CHUNK, length - ii);
-        if (mpu_write_mem(ii, this_write, (unsigned char*)&firmware[ii]))
+        if (eeprom_read_bytes(ii, firmware_chunk, this_write) != HAL_OK)
+            return -1;
+        if (mpu_write_mem(ii, this_write, firmware_chunk))
             return -1;
         if (mpu_read_mem(ii, this_write, cur))
             return -1;
         for (jj = 0; jj < this_write; jj++) {
-            if (cur[jj] != firmware[ii + jj]) {
+            if (cur[jj] != firmware_chunk[jj]) {
                 return -2;
             }
         }
+        delay_ms(20);
+        // log_i("Chunk #%u loaded and verified.\r\n", kk);
+        // kk++;
     }
 
     /* Set program start address. */

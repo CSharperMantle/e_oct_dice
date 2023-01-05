@@ -4,26 +4,30 @@
 #include "inv_mpu_dmp_motion_driver.h"
 
 #define MPU_GYRO_FSR 2000
-#define MPU_REFRESH_RATE_HZ 200
-#define MPU_DMP_REFRESH_RATE_HZ 200
-#define MPU_F_GYRO_SENS ( 131.0f * 250.f / (float)MPU_GYRO_FSR )
+#define MPU_REFRESH_RATE_HZ 100
+#define MPU_F_GYRO_SENS ( 16.375f )
+#define MPU_F_ACCEL_SENS ( 16384.f )
 #define MPU_F_QUAT_SENS ( 1073741824.f )
+
+#define USE_DMP
 
 unsigned char __PDATA str_buf[64];
 
 int __DATA status;
-short __IDATA gyro_s[3], sensors;
-unsigned char __IDATA more;
 
-float __DATA vec4_quat[4], gyro_f[3];
+short __IDATA gyro_s[3], accel_s[3];
+short __IDATA sensors_dmp;
+long __IDATA quat_l[4];
+unsigned char __IDATA more, sensors_mpu;
+float __IDATA quat_f[4], gyro_f[3], accel_f[3];
 
 /* = = = QUATERNION AND VECTOR HELPER FUNCTIONS = = = */
 
-static void vec3_dot(float *vec3_x, float *vec3_y, float *s_out) small {
-    *s_out = vec3_x[0] * vec3_y[0]
-           + vec3_x[1] * vec3_y[1]
-           + vec3_x[2] * vec3_y[2]
-           + vec3_x[3] * vec3_y[3];
+static float vec3_dot(float *vec3_x, float *vec3_y) small {
+    return (vec3_x[0] * vec3_y[0]
+          + vec3_x[1] * vec3_y[1]
+          + vec3_x[2] * vec3_y[2]
+          + vec3_x[3] * vec3_y[3]);
 }
 
 static void vec3_cross(float *vec3_x, float *vec3_y, float *vec3_out) small {
@@ -51,13 +55,13 @@ static void rotate(float *vec3_v, float *vec4_q, float *vec3_out) small {
     
     vec3_u = &vec4_q[1];
 
-    vec3_dot(vec3_u, vec3_v, &s_tmp_1);
+    s_tmp_1 = vec3_dot(vec3_u, vec3_v);
     s_tmp_1 *= 2.f;
     vec3_mul(vec3_u, s_tmp_1, vec3_tmp_1);
 
     s_tmp_1 = vec4_q[0];
 
-    vec3_dot(vec3_u, vec3_u, &s_tmp_2);
+    s_tmp_2 = vec3_dot(vec3_u, vec3_u);
     s_tmp_2 = -(s_tmp_2);
     s_tmp_2 += s_tmp_1 * s_tmp_1;
     vec3_mul(vec3_v, s_tmp_2, vec3_tmp_2);
@@ -105,58 +109,91 @@ static void init_uart(void) small {
 
 static void init_i2c(void) small {
     I2C_SetWorkMode(I2C_WorkMode_Master);
-    I2C_SetClockPrescaler(58U);
+    I2C_SetClockPrescaler(13U);
     I2C_SetPort(I2C_AlterPort_P32_P33);
     I2C_SetEnabled(HAL_State_ON);
 }
 
 static void init_periph_mpu(void) small {
-    status = mpu_init(NULL);
-    printf("mpu_init: %d\r\n", status);
-    status = mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
-    printf("mpu_set_sensors: %d\r\n", status);
-    status = mpu_set_gyro_fsr(MPU_GYRO_FSR);
-    printf("mpu_set_gyro_fsr: %d\r\n", status);
-    status = mpu_set_accel_fsr(2);
-    printf("mpu_set_accel_fsr: %d\r\n", status);
-    status = mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
-    printf("mpu_configure_fifo: %d\r\n", status);
-    mpu_get_power_state(&status);
-    printf("mpu_get_power_state: %#hhx\r\n", (unsigned short)status);
-    status = mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
-    printf("mpu_set_sample_rate: %d\r\n", status);
+    mpu_init(NULL);
+    mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
+    mpu_set_gyro_fsr(MPU_GYRO_FSR);
+    mpu_set_accel_fsr(2);
+    mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
+    mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
 }
 
 static void init_periph_dmp(void) small {
     status = dmp_load_motion_driver_firmware();
-    printf("dmp_load_motion_driver_firmware: %d\r\n", status);
-    if (status) while (1) { ; }
-    status = dmp_set_fifo_rate(MPU_DMP_REFRESH_RATE_HZ);
-    printf("dmp_set_fifo_rate: %d\r\n", status);
-    status = dmp_enable_feature(DMP_FEATURE_SEND_CAL_GYRO | DMP_FEATURE_GYRO_CAL);
-    printf("dmp_enable_feature: %d\r\n", status);
-    status = mpu_set_dmp_state(1);
-    printf("mpu_set_dmp_state: %d\r\n", status);
+    if (status) do { ; } while (1);
+    dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT
+                     | DMP_FEATURE_SEND_RAW_ACCEL
+                     | DMP_FEATURE_SEND_CAL_GYRO
+                     | DMP_FEATURE_GYRO_CAL);
+    dmp_set_fifo_rate(MPU_REFRESH_RATE_HZ);
+    mpu_set_dmp_state(1);
 }
 
-void main(void) compact {
+void main(void) small {
     init_gpio();
     init_uart();
     init_i2c();
 
     init_periph_mpu();
-    init_periph_dmp();
 
+#if !defined(USE_DMP)
     while (1) {
-        status = dmp_read_fifo(gyro_s, NULL, NULL, NULL, &sensors, &more);
+        do {
+            status = mpu_read_fifo(gyro_s, accel_s, NULL, &sensors_mpu, &more);
+        } while (more);
 
         gyro_f[0] = (float)gyro_s[0] / MPU_F_GYRO_SENS;
         gyro_f[1] = (float)gyro_s[1] / MPU_F_GYRO_SENS;
         gyro_f[2] = (float)gyro_s[2] / MPU_F_GYRO_SENS;
 
-        printf("(%d, %u, %u) gx:%.3f, gy:%.3f, gz:%.3f\r\n", 
-            status, sensors, more, gyro_f[0], gyro_f[1], gyro_f[2]);
 
-        SYS_DelayUs(5);
+        printf("mpu_read_fifo: %d\tHas gyro? %c\tHas accel? %c\r\n",
+            status,
+            ((sensors_mpu & INV_XYZ_GYRO) ? 'Y' : 'N'),
+            ((sensors_mpu & INV_XYZ_ACCEL) ? 'Y' : 'N'));
+
+        gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
+        gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
+        gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
+
+        printf("gx:%.6hd, gy:%.6hd, gz:%.6hd\tax:%.6hd, ay:%.6hd, az:%.6hd\r\n", 
+            gyro_s[0], gyro_s[1], gyro_s[2],
+            accel_s[0], accel_s[1], accel_s[2]);
+
+        SYS_Delay(5);
     }
+#else
+    init_periph_dmp();
+    while (1) {
+        do {
+            status = dmp_read_fifo(gyro_s, accel_s, quat_l, NULL, &sensors_dmp, &more);
+        } while (more);
+
+        gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
+        gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
+        gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
+
+        accel_f[0] = ((float)accel_s[0]) / MPU_F_ACCEL_SENS;
+        accel_f[1] = ((float)accel_s[1]) / MPU_F_ACCEL_SENS;
+        accel_f[2] = ((float)accel_s[2]) / MPU_F_ACCEL_SENS;
+
+        quat_f[0] = ((float)quat_l[0]) / MPU_F_QUAT_SENS;
+        quat_f[1] = ((float)quat_l[1]) / MPU_F_QUAT_SENS;
+        quat_f[2] = ((float)quat_l[2]) / MPU_F_QUAT_SENS;
+        quat_f[3] = ((float)quat_l[3]) / MPU_F_QUAT_SENS;
+
+        printf("gx:%.6f, gy:%.6f, gz:%.6f\tax:%.6f, ay:%.6f, az:%.6f\r\n", 
+            gyro_f[0], gyro_f[1], gyro_f[2],
+            accel_f[0], accel_f[1], accel_f[2]);
+        // printf("qw:%.6f, qx:%.6f, qy:%.6f, qz:%.6f\r\n", 
+        //     quat_f[0], quat_f[1], quat_f[2], quat_f[3]);
+
+        SYS_Delay(5);
+    }
+#endif
 }

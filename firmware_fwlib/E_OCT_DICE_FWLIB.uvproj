@@ -428,12 +428,6 @@
             </File>
           </Files>
         </Group>
-        <Group>
-          <GroupName>lib/hardi2c</GroupName>
-        </Group>
-        <Group>
-          <GroupName>lib/softi2c</GroupName>
-        </Group>
       </Groups>
     </Target>
     <Target>
@@ -857,12 +851,6 @@
               <FilePath>.\fw_util.c</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>lib/hardi2c</GroupName>
-        </Group>
-        <Group>
-          <GroupName>lib/softi2c</GroupName>
         </Group>
       </Groups>
     </Target>
