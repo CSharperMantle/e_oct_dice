@@ -421,11 +421,6 @@
               <FileType>1</FileType>
               <FilePath>.\fw_uart.c</FilePath>
             </File>
-            <File>
-              <FileName>fw_util.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\fw_util.c</FilePath>
-            </File>
           </Files>
         </Group>
       </Groups>
@@ -844,11 +839,6 @@
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\fw_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>fw_util.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\fw_util.c</FilePath>
             </File>
           </Files>
         </Group>

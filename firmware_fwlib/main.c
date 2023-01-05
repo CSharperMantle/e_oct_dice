@@ -103,7 +103,7 @@ static void init_gpio(void) small {
 
 static void init_uart(void) small {
     UART1_SwitchPort(UART1_AlterPort_P36_P37);
-    UTIL_Uart1_24M_115200_Init();
+    UART1_24M_115200_Init();
     printf("UART1: Ready\r\n");
 }
 

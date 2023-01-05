@@ -14,7 +14,6 @@
 
 #include "fw_tim.h"
 #include "fw_sys.h"
-#include "fw_util.h"
 
 /**
  * Calculate the initial value of Timer0 & Timer1 counter

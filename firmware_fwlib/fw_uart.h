@@ -69,4 +69,16 @@ typedef enum
 */
 #define UART1_SwitchPort(__ALTER_PORT__)    (P_SW1 = P_SW1 & ~(0x03 << 6) | ((__ALTER_PORT__) << 6))
 
+#define UART1_24M_115200_Init()  \
+do {  \
+    SCON = 0x50; /* 8 bits and variable baudrate */  \
+    AUXR |= 0x40; /* Timer clock is 1T mode */  \
+    AUXR &= 0xFE; /* UART 1 use Timer1 as baudrate generator */  \
+    TMOD &= 0x0F; /* Set timer work mode */  \
+    TL1 = 0xCC; /* Initial timer value */  \
+    TH1 = 0xFF; /* Initial timer value */  \
+    ET1 = 0; /* Disable Timer interrupt */  \
+    TR1 = 1; /* Timer1 start run */  \
+} while (0)
+
 #endif
