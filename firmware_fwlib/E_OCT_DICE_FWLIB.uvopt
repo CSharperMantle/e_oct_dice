@@ -54,12 +54,12 @@
         <CreateIListing>0</CreateIListing>
         <AsmCond>1</AsmCond>
         <AsmSymb>1</AsmSymb>
-        <AsmXref>0</AsmXref>
+        <AsmXref>1</AsmXref>
         <CCond>1</CCond>
-        <CCode>0</CCode>
+        <CCode>1</CCode>
         <CListInc>0</CListInc>
         <CSymb>0</CSymb>
-        <LinkerCodeListing>0</LinkerCodeListing>
+        <LinkerCodeListing>1</LinkerCodeListing>
       </ListingPage>
       <OPTXL>
         <LMap>1</LMap>
@@ -69,7 +69,7 @@
         <LLines>1</LLines>
         <LLocSym>1</LLocSym>
         <LPubSym>1</LPubSym>
-        <LXref>0</LXref>
+        <LXref>1</LXref>
         <LExpSel>0</LExpSel>
       </OPTXL>
       <OPTFL>

@@ -23,6 +23,7 @@ float __IDATA quat_f[4], gyro_f[3], accel_f[3];
 
 /* = = = QUATERNION AND VECTOR HELPER FUNCTIONS = = = */
 
+/*
 static float vec3_dot(float *vec3_x, float *vec3_y) small {
     return (vec3_x[0] * vec3_y[0]
           + vec3_x[1] * vec3_y[1]
@@ -74,6 +75,7 @@ static void rotate(float *vec3_v, float *vec4_q, float *vec3_out) small {
 
     vec3_add(vec3_tmp_1, vec3_tmp_2, vec3_out);
 }
+*/
 
 /* = = = END OF QUATERNION AND VECTOR HELPER FUNCTIONS = = = */
 
@@ -187,11 +189,11 @@ void main(void) small {
         quat_f[2] = ((float)quat_l[2]) / MPU_F_QUAT_SENS;
         quat_f[3] = ((float)quat_l[3]) / MPU_F_QUAT_SENS;
 
-        printf("gx:%.6f, gy:%.6f, gz:%.6f\tax:%.6f, ay:%.6f, az:%.6f\r\n", 
-            gyro_f[0], gyro_f[1], gyro_f[2],
-            accel_f[0], accel_f[1], accel_f[2]);
-        // printf("qw:%.6f, qx:%.6f, qy:%.6f, qz:%.6f\r\n", 
-        //     quat_f[0], quat_f[1], quat_f[2], quat_f[3]);
+        // printf("gx:%.6f, gy:%.6f, gz:%.6f\tax:%.6f, ay:%.6f, az:%.6f\r\n", 
+        //     gyro_f[0], gyro_f[1], gyro_f[2],
+        //     accel_f[0], accel_f[1], accel_f[2]);
+        printf("qw:%.6f, qx:%.6f, qy:%.6f, qz:%.6f\r\n", 
+            quat_f[0], quat_f[1], quat_f[2], quat_f[3]);
 
         SYS_Delay(5);
     }
