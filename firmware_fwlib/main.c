@@ -1,25 +1,18 @@
 #include <stdio.h>
 #include "fw_hal.h"
 #include "inv_mpu.h"
-#include "inv_mpu_dmp_motion_driver.h"
+#include "MahonyAHRS.h"
 
 #define MPU_GYRO_FSR 2000
 #define MPU_REFRESH_RATE_HZ 100
 #define MPU_F_GYRO_SENS ( 16.375f )
 #define MPU_F_ACCEL_SENS ( 16384.f )
-#define MPU_F_QUAT_SENS ( 1073741824.f )
-
-#define USE_DMP
-
-unsigned char __PDATA str_buf[64];
 
 int __DATA status;
 
 short __IDATA gyro_s[3], accel_s[3];
-short __IDATA sensors_dmp;
-long __IDATA quat_l[4];
 unsigned char __IDATA more, sensors_mpu;
-float __IDATA quat_f[4], gyro_f[3], accel_f[3];
+float __IDATA gyro_f[3], accel_f[3];
 
 /* = = = QUATERNION AND VECTOR HELPER FUNCTIONS = = = */
 
@@ -125,77 +118,33 @@ static void init_periph_mpu(void) small {
     mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
 }
 
-static void init_periph_dmp(void) small {
-    status = dmp_load_motion_driver_firmware();
-    if (status) do { ; } while (1);
-    dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT
-                     | DMP_FEATURE_SEND_RAW_ACCEL
-                     | DMP_FEATURE_SEND_CAL_GYRO
-                     | DMP_FEATURE_GYRO_CAL);
-    dmp_set_fifo_rate(MPU_REFRESH_RATE_HZ);
-    mpu_set_dmp_state(1);
-}
-
 void main(void) small {
     init_gpio();
     init_uart();
     init_i2c();
-
     init_periph_mpu();
 
-#if !defined(USE_DMP)
     while (1) {
         do {
             status = mpu_read_fifo(gyro_s, accel_s, NULL, &sensors_mpu, &more);
+
+            gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
+            gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
+            gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
+
+            accel_f[0] = ((float)accel_s[0]) / MPU_F_ACCEL_SENS;
+            accel_f[1] = ((float)accel_s[1]) / MPU_F_ACCEL_SENS;
+            accel_f[2] = ((float)accel_s[2]) / MPU_F_ACCEL_SENS;
+
+            MahonyAHRSUpdateIMU(gyro_f[0], gyro_f[1], gyro_f[2], accel_f[0], accel_f[1], accel_f[2]);
         } while (more);
 
-        gyro_f[0] = (float)gyro_s[0] / MPU_F_GYRO_SENS;
-        gyro_f[1] = (float)gyro_s[1] / MPU_F_GYRO_SENS;
-        gyro_f[2] = (float)gyro_s[2] / MPU_F_GYRO_SENS;
-
-
-        printf("mpu_read_fifo: %d\tHas gyro? %c\tHas accel? %c\r\n",
-            status,
-            ((sensors_mpu & INV_XYZ_GYRO) ? 'Y' : 'N'),
-            ((sensors_mpu & INV_XYZ_ACCEL) ? 'Y' : 'N'));
-
-        gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
-        gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
-        gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
-
-        printf("gx:%.6hd, gy:%.6hd, gz:%.6hd\tax:%.6hd, ay:%.6hd, az:%.6hd\r\n", 
-            gyro_s[0], gyro_s[1], gyro_s[2],
-            accel_s[0], accel_s[1], accel_s[2]);
-
-        SYS_Delay(5);
-    }
-#else
-    init_periph_dmp();
-    while (1) {
-        do {
-            status = dmp_read_fifo(gyro_s, accel_s, quat_l, NULL, &sensors_dmp, &more);
-        } while (more);
-
-        gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
-        gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
-        gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
-
-        accel_f[0] = ((float)accel_s[0]) / MPU_F_ACCEL_SENS;
-        accel_f[1] = ((float)accel_s[1]) / MPU_F_ACCEL_SENS;
-        accel_f[2] = ((float)accel_s[2]) / MPU_F_ACCEL_SENS;
-
-        quat_f[0] = ((float)quat_l[0]) / MPU_F_QUAT_SENS;
-        quat_f[1] = ((float)quat_l[1]) / MPU_F_QUAT_SENS;
-        quat_f[2] = ((float)quat_l[2]) / MPU_F_QUAT_SENS;
-        quat_f[3] = ((float)quat_l[3]) / MPU_F_QUAT_SENS;
-
-        // printf("gx:%.6f, gy:%.6f, gz:%.6f\tax:%.6f, ay:%.6f, az:%.6f\r\n", 
+        // printf("%.6f,%.6f,%.6f,%.6f,%.6f,%.6f\r\n", 
         //     gyro_f[0], gyro_f[1], gyro_f[2],
         //     accel_f[0], accel_f[1], accel_f[2]);
-        printf("qw:%.6f, qx:%.6f, qy:%.6f, qz:%.6f\r\n", 
-            quat_f[0], quat_f[1], quat_f[2], quat_f[3]);
+
+        printf("%.6f,%.6f,%.6f,%.6f\r\n", q0, q1, q2, q3);
 
         SYS_Delay(5);
     }
-#endif
 }

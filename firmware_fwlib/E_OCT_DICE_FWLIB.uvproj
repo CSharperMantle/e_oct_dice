@@ -314,7 +314,7 @@
             <uAregs>0</uAregs>
             <UseInterruptVector>1</UseInterruptVector>
             <Fuzzy>3</Fuzzy>
-            <Optimize>1</Optimize>
+            <Optimize>9</Optimize>
             <WarningLevel>2</WarningLevel>
             <SizeSpeed>0</SizeSpeed>
             <ObjectExtend>1</ObjectExtend>
@@ -391,11 +391,6 @@
               <FileType>1</FileType>
               <FilePath>.\inv_mpu.c</FilePath>
             </File>
-            <File>
-              <FileName>inv_mpu_dmp_motion_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\inv_mpu_dmp_motion_driver.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -420,6 +415,16 @@
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\fw_uart.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib/mahony</GroupName>
+          <Files>
+            <File>
+              <FileName>MahonyAHRS.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MahonyAHRS.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -810,11 +815,6 @@
               <FileType>1</FileType>
               <FilePath>.\inv_mpu.c</FilePath>
             </File>
-            <File>
-              <FileName>inv_mpu_dmp_motion_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\inv_mpu_dmp_motion_driver.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -839,6 +839,16 @@
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\fw_uart.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib/mahony</GroupName>
+          <Files>
+            <File>
+              <FileName>MahonyAHRS.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\MahonyAHRS.c</FilePath>
             </File>
           </Files>
         </Group>
