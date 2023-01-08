@@ -20,9 +20,9 @@
 //---------------------------------------------------------------------------------------------------
 // Definitions
 
-#define SAMPLE_FREQ 100.0f          // sample frequency in Hz
+#define SAMPLE_FREQ 200.0f          // sample frequency in Hz
 #define TWO_K_P_DEF (2.0f * 0.5f)   // 2 * proportional gain
-#define TWO_K_I_DEF (2.0f * 0.0f)   // 2 * integral gain
+#define TWO_K_I_DEF (2.0f * 0.01f)   // 2 * integral gain
 
 //---------------------------------------------------------------------------------------------------
 // Variable definitions

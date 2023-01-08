@@ -3,16 +3,19 @@
 #include "inv_mpu.h"
 #include "MahonyAHRS.h"
 
+#define MPU_WARMUP_SAMPLES 400
 #define MPU_GYRO_FSR 2000
-#define MPU_REFRESH_RATE_HZ 100
+#define MPU_REFRESH_RATE_HZ 200
 #define MPU_F_GYRO_SENS ( 16.375f )
 #define MPU_F_ACCEL_SENS ( 16384.f )
 
-int __DATA status;
+int __DATA i;
 
 short __IDATA gyro_s[3], accel_s[3];
 unsigned char __IDATA more, sensors_mpu;
 float __IDATA gyro_f[3], accel_f[3];
+
+float __IDATA gyro_bias[3] = { 0.f, 0.f, 0.f };
 
 /* = = = QUATERNION AND VECTOR HELPER FUNCTIONS = = = */
 
@@ -72,7 +75,7 @@ static void rotate(float *vec3_v, float *vec4_q, float *vec3_out) small {
 
 /* = = = END OF QUATERNION AND VECTOR HELPER FUNCTIONS = = = */
 
-static void init_gpio(void) small {
+void main(void) small {
     // LEDs
     GPIO_P2_SetMode(GPIO_Pin_All, GPIO_Mode_Output_PP);
     P20 = 1;
@@ -94,43 +97,48 @@ static void init_gpio(void) small {
     GPIO_SetDriveCapability(GPIO_Port_3, GPIO_Pin_2 | GPIO_Pin_3, GPIO_DriveCapability_High);
     GPIO_SetSchmittTrigger(GPIO_Port_3, GPIO_Pin_2 | GPIO_Pin_3, GPIO_SchmittTrigger_ON);
     GPIO_SetDigitalInput(GPIO_Port_3, GPIO_Pin_2 | GPIO_Pin_3, HAL_State_ON);
-}
 
-static void init_uart(void) small {
     UART1_SwitchPort(UART1_AlterPort_P36_P37);
     UART1_24M_115200_Init();
-    printf("UART1: Ready\r\n");
-}
 
-static void init_i2c(void) small {
     I2C_SetWorkMode(I2C_WorkMode_Master);
     I2C_SetClockPrescaler(13U);
     I2C_SetPort(I2C_AlterPort_P32_P33);
     I2C_SetEnabled(HAL_State_ON);
-}
 
-static void init_periph_mpu(void) small {
     mpu_init(NULL);
     mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
     mpu_set_gyro_fsr(MPU_GYRO_FSR);
     mpu_set_accel_fsr(2);
     mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
     mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
-}
 
-void main(void) small {
-    init_gpio();
-    init_uart();
-    init_i2c();
-    init_periph_mpu();
+    SYS_Delay(250);
 
+    // IMU warmup
+    for (i = 0; i < MPU_WARMUP_SAMPLES; i++) {
+        do {
+            mpu_read_fifo(gyro_s, accel_s, NULL, &sensors_mpu, &more);
+        } while (more);
+        gyro_bias[0] += ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
+        gyro_bias[1] += ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
+        gyro_bias[2] += ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
+    }
+    gyro_bias[0] /= (float)MPU_WARMUP_SAMPLES;
+    gyro_bias[1] /= (float)MPU_WARMUP_SAMPLES;
+    gyro_bias[2] /= (float)MPU_WARMUP_SAMPLES;
+    printf("%.6f,%.6f,%.6f\r\n", 
+        gyro_bias[0], gyro_bias[1], gyro_bias[2]);
+
+
+    // Main loop
     while (1) {
         do {
-            status = mpu_read_fifo(gyro_s, accel_s, NULL, &sensors_mpu, &more);
+            mpu_read_fifo(gyro_s, accel_s, NULL, &sensors_mpu, &more);
 
-            gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
-            gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
-            gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
+            gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS - gyro_bias[0];
+            gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS - gyro_bias[1];
+            gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS - gyro_bias[2];
 
             accel_f[0] = ((float)accel_s[0]) / MPU_F_ACCEL_SENS;
             accel_f[1] = ((float)accel_s[1]) / MPU_F_ACCEL_SENS;
@@ -143,7 +151,7 @@ void main(void) small {
         //     gyro_f[0], gyro_f[1], gyro_f[2],
         //     accel_f[0], accel_f[1], accel_f[2]);
 
-        printf("%.6f,%.6f,%.6f,%.6f\r\n", q0, q1, q2, q3);
+        printf("%.6f\t%.6f\t%.6f\t%.6f\r\n", q0, q1, q2, q3);
 
         SYS_Delay(5);
     }
