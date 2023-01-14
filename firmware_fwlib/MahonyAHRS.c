@@ -8,6 +8,7 @@
 // Date         Author          Notes
 // 29/09/2011   SOH Madgwick    Initial release
 // 02/10/2011   SOH Madgwick    Optimised for reduced CPU load
+// 14/01/2023   R Bao           Always enable integral gain
 //
 //=====================================================================================================
 
@@ -21,14 +22,12 @@
 // Definitions
 
 #define SAMPLE_FREQ 200.0f          // sample frequency in Hz
-#define TWO_K_P_DEF (2.0f * 0.5f)   // 2 * proportional gain
-#define TWO_K_I_DEF (2.0f * 0.01f)   // 2 * integral gain
+#define TWO_K_P_DEF (2.0f * 0.5f)   // 2 * proportional gain (Kp)
+#define TWO_K_I_DEF (2.0f * 0.3f)   // 2 * integral gain (Ki)
 
 //---------------------------------------------------------------------------------------------------
 // Variable definitions
 
-volatile float twoKp = TWO_K_P_DEF;                                         // 2 * proportional gain (Kp)
-volatile float twoKi = TWO_K_I_DEF;                                         // 2 * integral gain (Ki)
 volatile float q0 = 1.0f, q1 = 0.0f, q2 = 0.0f, q3 = 0.0f;                  // quaternion of sensor frame relative to auxiliary frame
 volatile float integralFBx = 0.0f,  integralFBy = 0.0f, integralFBz = 0.0f; // integral error terms scaled by Ki
 
@@ -63,7 +62,7 @@ void MahonyAHRSUpdateIMU(float gx, float gy, float gz, float ax, float ay, float
     float qa, qb, qc;
 
     // Compute feedback only if accelerometer measurement valid (avoids NaN in accelerometer normalisation)
-    if(!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
+    if (!((ax == 0.0f) && (ay == 0.0f) && (az == 0.0f))) {
 
         // Normalise accelerometer measurement
         recipNorm = invSqrt(ax * ax + ay * ay + az * az);
@@ -81,25 +80,18 @@ void MahonyAHRSUpdateIMU(float gx, float gy, float gz, float ax, float ay, float
         halfey = (az * halfvx - ax * halfvz);
         halfez = (ax * halfvy - ay * halfvx);
 
-        // Compute and apply integral feedback if enabled
-        if(twoKi > 0.0f) {
-            integralFBx += twoKi * halfex * (1.0f / SAMPLE_FREQ);   // integral error scaled by Ki
-            integralFBy += twoKi * halfey * (1.0f / SAMPLE_FREQ);
-            integralFBz += twoKi * halfez * (1.0f / SAMPLE_FREQ);
-            gx += integralFBx;  // apply integral feedback
-            gy += integralFBy;
-            gz += integralFBz;
-        }
-        else {
-            integralFBx = 0.0f; // prevent integral windup
-            integralFBy = 0.0f;
-            integralFBz = 0.0f;
-        }
+        // Compute and apply integral feedback
+        integralFBx += TWO_K_I_DEF * halfex * (1.0f / SAMPLE_FREQ);   // integral error scaled by Ki
+        integralFBy += TWO_K_I_DEF * halfey * (1.0f / SAMPLE_FREQ);
+        integralFBz += TWO_K_I_DEF * halfez * (1.0f / SAMPLE_FREQ);
+        gx += integralFBx;  // apply integral feedback
+        gy += integralFBy;
+        gz += integralFBz;
 
         // Apply proportional feedback
-        gx += twoKp * halfex;
-        gy += twoKp * halfey;
-        gz += twoKp * halfez;
+        gx += TWO_K_P_DEF * halfex;
+        gy += TWO_K_P_DEF * halfey;
+        gz += TWO_K_P_DEF * halfez;
     }
     
     // Integrate rate of change of quaternion
