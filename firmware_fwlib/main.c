@@ -16,15 +16,15 @@
 #define PIN_LED_GEO P06
 #define PIN_LED_WLD P07
 
-#define MPU_CALIB_ACCEL_X_GOAL 0
-#define MPU_CALIB_ACCEL_Y_GOAL 0
-#define MPU_CALIB_ACCEL_Z_GOAL 16384
 #define MPU_CALIB_GYRO_X_GOAL 0
 #define MPU_CALIB_GYRO_Y_GOAL 0
 #define MPU_CALIB_GYRO_Z_GOAL 0
-#define MPU_BIAS_SAMPLES 500
+#define MPU_CALIB_ACCEL_X_GOAL 0
+#define MPU_CALIB_ACCEL_Y_GOAL 0
+#define MPU_CALIB_ACCEL_Z_GOAL 16384
+#define MPU_BIAS_SAMPLES 200
 #define MPU_GYRO_FSR 2000
-#define MPU_REFRESH_RATE_HZ 200
+#define MPU_REFRESH_RATE_HZ 100
 #define MPU_F_GYRO_SENS 16.375f
 #define MPU_F_ACCEL_SENS 16384.f
 
@@ -35,8 +35,7 @@ __IDATA unsigned char more, sensors_mpu;
 __IDATA float gyro_f[3], accel_f[3], euler[3];
 
 /* MPU Calibration */
-__IDATA short gyro_bias_s[3] = { 0, 0, 0 }, accel_bias_s[3] = { 0, 0, 0 };
-__IDATA short gyro_avg_s[3] = { 0, 0, 0 }, accel_avg_s[3] = { 0, 0, 0 };
+__IDATA long gyro_bias_l[3] = {0}, accel_bias_l[3] = {0};
 
 /* = = = QUATERNION AND VECTOR HELPER FUNCTIONS = = = */
 
@@ -142,24 +141,36 @@ void main(void) small {
         do {
             mpu_read_fifo(gyro_s, accel_s, NULL, &sensors_mpu, &more);
         } while (more);
-        gyro_bias_s[0] += (int)gyro_s[0];
-        gyro_bias_s[1] += (int)gyro_s[1];
-        gyro_bias_s[2] += (int)gyro_s[2];
+        gyro_bias_l[0] += MPU_CALIB_GYRO_X_GOAL - (long)gyro_s[0];
+        gyro_bias_l[1] += MPU_CALIB_GYRO_Y_GOAL - (long)gyro_s[1];
+        gyro_bias_l[2] += MPU_CALIB_GYRO_Z_GOAL - (long)gyro_s[2];
+        accel_bias_l[0] += MPU_CALIB_ACCEL_X_GOAL - (long)accel_s[0];
+        accel_bias_l[1] += MPU_CALIB_ACCEL_Y_GOAL - (long)accel_s[1];
+        accel_bias_l[2] += MPU_CALIB_ACCEL_Z_GOAL - (long)accel_s[2];
+        SYS_Delay(2);
     }
-    gyro_bias_s[0] /= MPU_BIAS_SAMPLES;
-    gyro_bias_s[1] /= MPU_BIAS_SAMPLES;
-    gyro_bias_s[2] /= MPU_BIAS_SAMPLES;
-
-    printf("GYRO BIAS: %d\t%d\t%d\r\n", gyro_bias_s[0], gyro_bias_s[1], gyro_bias_s[2]);
+    gyro_bias_l[0] /= MPU_BIAS_SAMPLES;
+    gyro_bias_l[1] /= MPU_BIAS_SAMPLES;
+    gyro_bias_l[2] /= MPU_BIAS_SAMPLES;
+    accel_bias_l[0] /= MPU_BIAS_SAMPLES;
+    accel_bias_l[1] /= MPU_BIAS_SAMPLES;
+    accel_bias_l[2] /= MPU_BIAS_SAMPLES;
 
     // Main loop
     while (1) {
         do {
             mpu_read_fifo(gyro_s, accel_s, NULL, &sensors_mpu, &more);
 
-            gyro_f[0] = ((float)(gyro_s[0] - gyro_bias_s[0])) / MPU_F_GYRO_SENS;
-            gyro_f[1] = ((float)(gyro_s[1] - gyro_bias_s[1])) / MPU_F_GYRO_SENS;
-            gyro_f[2] = ((float)(gyro_s[2] - gyro_bias_s[2])) / MPU_F_GYRO_SENS;
+            gyro_s[0] += (short)gyro_bias_l[0];
+            gyro_s[1] += (short)gyro_bias_l[1];
+            gyro_s[2] += (short)gyro_bias_l[2];
+            accel_s[0] += (short)accel_bias_l[0];
+            accel_s[1] += (short)accel_bias_l[1];
+            accel_s[2] += (short)accel_bias_l[2];
+
+            gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
+            gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
+            gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
 
             accel_f[0] = ((float)accel_s[0]) / MPU_F_ACCEL_SENS;
             accel_f[1] = ((float)accel_s[1]) / MPU_F_ACCEL_SENS;
@@ -168,16 +179,16 @@ void main(void) small {
             MahonyAHRSUpdateIMU(gyro_f[0], gyro_f[1], gyro_f[2], accel_f[0], accel_f[1], accel_f[2]);
         } while (more);
 
-        printf("%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\r\n", 
-            gyro_f[0], gyro_f[1], gyro_f[2],
-            accel_f[0], accel_f[1], accel_f[2]);
+        // printf("%.6f\t%.6f\t%.6f\t%.6f\t%.6f\t%.6f\r\n", 
+        //     gyro_f[0], gyro_f[1], gyro_f[2],
+        //     accel_f[0], accel_f[1], accel_f[2]);
 
         // quat_to_euler(&euler[0], &euler[1], &euler[2]);
         // euler[0] = RAD_TO_DEG(euler[0]);
         // euler[1] = RAD_TO_DEG(euler[1]);
         // euler[2] = RAD_TO_DEG(euler[2]);
 
-        // printf("%.6f\t%.6f\t%.6f\t%.6f\r\n", q0, q1, q2, q3);
+        printf("%.6f\t%.6f\t%.6f\t%.6f\r\n", q0, q1, q2, q3);
 
         // printf("%.6f\t%.6f\t%.6f\r\n", euler[0], euler[1], euler[2]);
 
