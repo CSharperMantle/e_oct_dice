@@ -233,34 +233,11 @@ struct chip_cfg_s {
 #endif
 };
 
-/* Information for self-test. */
-struct test_s {
-    unsigned long gyro_sens;
-    unsigned long accel_sens;
-    unsigned char reg_rate_div;
-    unsigned char reg_lpf;
-    unsigned char reg_gyro_fsr;
-    unsigned char reg_accel_fsr;
-    unsigned short wait_ms;
-    unsigned char packet_thresh;
-    float min_dps;
-    float max_dps;
-    float max_gyro_var;
-    float min_g;
-    float max_g;
-    float max_accel_var;
-#ifdef MPU6500
-    float max_g_offset;
-    unsigned short sample_wait_ms;
-#endif
-};
-
 /* Gyro driver state variables. */
 struct gyro_state_s {
     const struct gyro_reg_s *reg;
     const struct hw_s *hw;
     struct chip_cfg_s chip_cfg;
-    const struct test_s *test;
 };
 
 /* Filter configurations. */
@@ -459,27 +436,10 @@ const struct hw_s hw = {
 #endif
 };
 
-const struct test_s test = {
-    32768/250,
-    32768/16,
-    0,    /* 1kHz. */
-    1,    /* 188Hz. */
-    0,    /* 250dps. */
-    0x18, /* 16g. */
-    50,
-    5,    /* 5% */
-    10.f,
-    105.f,
-    0.14f,
-    0.3f,
-    0.95f,
-    0.14f
-};
-
 static struct gyro_state_s st = {
     &reg,
     &hw,
-    { 0 }, &test
+    { 0 }
 };
 #elif defined MPU6500
 const struct gyro_reg_s reg = {
@@ -539,29 +499,10 @@ const struct hw_s hw = {
 #endif
 };
 
-const struct test_s test = {
-    32768/250,
-    32768/2,  //FSR = +-2G = 16384 LSB/G
-    0,    /* 1kHz. */
-    2,    /* 92Hz low pass filter*/
-    0,    /* 250dps. */
-    0x0,  /* Accel FSR setting = 2g. */
-    200,   //200ms stabilization time
-    200,    /* 200 samples */
-    20.f,  //20 dps for Gyro Criteria C
-    60.f, //Must exceed 60 dps threshold for Gyro Criteria B
-    .5f, //Must exceed +50% variation for Gyro Criteria A
-    .225f, //Accel must exceed Min 225 mg for Criteria B
-    .675f, //Accel cannot exceed Max 675 mg for Criteria B
-    .5f,  //Accel must be within 50% variation for Criteria A
-    .5f,   //500 mg for Accel Criteria C
-    10    //10ms sample time wait
-};
-
 static struct gyro_state_s st = {
     &reg,
     &hw,
-    { 0 }, &test
+    { 0 }
 };
 #endif
 

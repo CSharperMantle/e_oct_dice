@@ -313,7 +313,7 @@
             <IntegerPromotion>1</IntegerPromotion>
             <uAregs>0</uAregs>
             <UseInterruptVector>1</UseInterruptVector>
-            <Fuzzy>3</Fuzzy>
+            <Fuzzy>6</Fuzzy>
             <Optimize>9</Optimize>
             <WarningLevel>2</WarningLevel>
             <SizeSpeed>0</SizeSpeed>
