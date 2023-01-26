@@ -322,7 +322,7 @@
             <InterruptVectorAddress>0</InterruptVectorAddress>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>__CX51__, __CONF_MCU_MODEL=MCU_MODEL_STC8H8K64U, __CONF_FOSC=24000000UL, MPU6500</Define>
+              <Define>__CX51__, __CONF_MCU_MODEL=MCU_MODEL_STC8H8K64U, __CONF_FOSC=24000000UL</Define>
               <Undefine></Undefine>
               <IncludePath></IncludePath>
             </VariousControls>
@@ -348,7 +348,7 @@
             <DataOverlaying>1</DataOverlaying>
             <OverlayString></OverlayString>
             <MiscControls></MiscControls>
-            <DisableWarningNumbers>16,57</DisableWarningNumbers>
+            <DisableWarningNumbers></DisableWarningNumbers>
             <LinkerCmdFile></LinkerCmdFile>
             <Assign></Assign>
             <ReserveString></ReserveString>

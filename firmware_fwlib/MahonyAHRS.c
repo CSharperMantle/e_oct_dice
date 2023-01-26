@@ -21,8 +21,7 @@
 //---------------------------------------------------------------------------------------------------
 // Definitions
 
-#define SAMPLE_FREQ 100.0f          // sample frequency in Hz
-#define TWO_K_P_DEF (2.0f * 0.9f)   // 2 * proportional gain (Kp)
+#define TWO_K_P_DEF (2.0f * 0.8f)   // 2 * proportional gain (Kp)
 #define TWO_K_I_DEF (2.0f * 0.1f)   // 2 * integral gain (Ki)
 
 //---------------------------------------------------------------------------------------------------
@@ -55,7 +54,7 @@ float invSqrt(float x) small {
 //---------------------------------------------------------------------------------------------------
 // IMU algorithm update
 
-void MahonyAHRSUpdateIMU(float gx, float gy, float gz, float ax, float ay, float az) small {
+void MahonyAHRSUpdateIMU(float gx, float gy, float gz, float ax, float ay, float az, float delta_t) small {
     float recipNorm;
     float halfvx, halfvy, halfvz;
     float halfex, halfey, halfez;
@@ -81,9 +80,9 @@ void MahonyAHRSUpdateIMU(float gx, float gy, float gz, float ax, float ay, float
         halfez = (ax * halfvy - ay * halfvx);
 
         // Compute and apply integral feedback
-        integralFBx += TWO_K_I_DEF * halfex * (1.0f / SAMPLE_FREQ);   // integral error scaled by Ki
-        integralFBy += TWO_K_I_DEF * halfey * (1.0f / SAMPLE_FREQ);
-        integralFBz += TWO_K_I_DEF * halfez * (1.0f / SAMPLE_FREQ);
+        integralFBx += TWO_K_I_DEF * halfex * delta_t;   // integral error scaled by Ki
+        integralFBy += TWO_K_I_DEF * halfey * delta_t;
+        integralFBz += TWO_K_I_DEF * halfez * delta_t;
         gx += integralFBx;  // apply integral feedback
         gy += integralFBy;
         gz += integralFBz;
@@ -95,9 +94,9 @@ void MahonyAHRSUpdateIMU(float gx, float gy, float gz, float ax, float ay, float
     }
     
     // Integrate rate of change of quaternion
-    gx *= (0.5f * (1.0f / SAMPLE_FREQ));        // pre-multiply common factors
-    gy *= (0.5f * (1.0f / SAMPLE_FREQ));
-    gz *= (0.5f * (1.0f / SAMPLE_FREQ));
+    gx *= (0.5f * delta_t);        // pre-multiply common factors
+    gy *= (0.5f * delta_t);
+    gz *= (0.5f * delta_t);
     qa = q0;
     qb = q1;
     qc = q2;

@@ -34,7 +34,7 @@ __CODE uint8_t  ticks_us    = (__CONF_FOSC / ((__CONF_CLKDIV == 0)? 1 : __CONF_C
 
 void SYS_Delay(uint16_t t)
 {
-    uint16_t i;
+    volatile uint16_t i;
     do
     {
         i = ticks_ms;
@@ -44,7 +44,7 @@ void SYS_Delay(uint16_t t)
 
 void SYS_DelayUs(uint16_t t)
 {
-    uint8_t i;
+    volatile uint8_t i;
     do
     {
         i = ticks_us;
