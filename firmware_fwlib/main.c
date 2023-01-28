@@ -24,9 +24,7 @@
 #define MASK_LED_GEO B01000000
 #define MASK_LED_WLD B10000000
 
-#define IS_IN_RANGE_EPS(value, target, eps) (((value) > ((target) - (eps))) && ((value) < ((target) + (eps))))
-
-#define BIT_TO_INT(b) (b ? 1 : 0)
+#define IS_IN_RANGE_EPS(x, t, eps) (((x) > ((t) - (eps))) && ((x) < ((t) + (eps))))
 
 #define MPU_CALIB_GYRO_X_GOAL 0
 #define MPU_CALIB_GYRO_Y_GOAL 0
@@ -40,18 +38,18 @@
 #define MPU_GYRO_FSR 2000
 #define MPU_REFRESH_RATE_HZ 100
 #define MPU_F_GYRO_SENS 16.375f
-#define MPU_F_ACCEL_SENS 16384.f
+#define MPU_F_ACCEL_SENS 16384.0f
 
 /* Array of initial face orientation vectors */
 __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
-    {HALF_SQRT2, 0.f, HALF_SQRT2},    /* PYR, X+ Z+ */
-    {0.f, HALF_SQRT2, HALF_SQRT2},    /* HYD, Y+ Z+ */
-    {-HALF_SQRT2, 0.f, HALF_SQRT2},   /* ANE, X- Z+ */
-    {0.f, -HALF_SQRT2, HALF_SQRT2},   /* ELE, Y- Z+ */
-    {HALF_SQRT2, 0.f, -HALF_SQRT2},   /* DEN, X+ Z- */
-    {0.f, HALF_SQRT2, -HALF_SQRT2},   /* CYR, Y+ Z- */
-    {-HALF_SQRT2, 0.f, -HALF_SQRT2},  /* GEO, X- Z- */
-    {0.f, -HALF_SQRT2, -HALF_SQRT2},  /* WLD, Y- Z- */
+    {HALF_SQRT2, 0.0f, HALF_SQRT2},    /* PYR, X+ Z+ */
+    {0.0f, HALF_SQRT2, HALF_SQRT2},    /* HYD, Y+ Z+ */
+    {-HALF_SQRT2, 0.0f, HALF_SQRT2},   /* ANE, X- Z+ */
+    {0.0f, -HALF_SQRT2, HALF_SQRT2},   /* ELE, Y- Z+ */
+    {HALF_SQRT2, 0.0f, -HALF_SQRT2},   /* DEN, X+ Z- */
+    {0.0f, HALF_SQRT2, -HALF_SQRT2},   /* CYR, Y+ Z- */
+    {-HALF_SQRT2, 0.0f, -HALF_SQRT2},  /* GEO, X- Z- */
+    {0.0f, -HALF_SQRT2, -HALF_SQRT2},  /* WLD, Y- Z- */
 };
 
 /* Accumulator */
@@ -73,7 +71,7 @@ __IDATA short gyro_bias_s[3] = {0}, accel_bias_s[3] = {0};
 
 #define DEFINE_ACTIVATION_SHRINK(name, lambda)  \
 static float name(float x) small {  \
-    return (x > -(lambda) && x < (lambda)) ? 0.f : x;  \
+    return (x > -(lambda) && x < (lambda)) ? 0.0f : x;  \
 }
 
 DEFINE_ACTIVATION_SHRINK(gyro_shrink, 0.375f)
@@ -103,16 +101,16 @@ static void vec3_add(const float *vec3_x, const float *vec3_y, float *vec3_out) 
 }
 
 static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) compact {
-    __PDATA float s_tmp_1 = 0.f, s_tmp_2 = 0.f;
+    __PDATA float s_tmp_1 = 0.0f, s_tmp_2 = 0.0f;
     __PDATA float *vec3_u = NULL;
-    __PDATA float vec3_tmp_1[3] = 0.f, vec3_tmp_2[3] = 0.f;
+    __PDATA float vec3_tmp_1[3] = 0.0f, vec3_tmp_2[3] = 0.0f;
 
-    vec3_out[0] = vec3_out[1] = vec3_out[2] = 0.f;
+    vec3_out[0] = vec3_out[1] = vec3_out[2] = 0.0f;
     
     vec3_u = &vec4_q[1];
 
     vec3_dot(vec3_u, vec3_v, &s_tmp_1);
-    s_tmp_1 *= 2.f;
+    s_tmp_1 *= 2.0f;
     vec3_mul(vec3_u, s_tmp_1, vec3_tmp_1);
 
     s_tmp_1 = vec4_q[0];
@@ -124,7 +122,7 @@ static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) co
 
     vec3_add(vec3_tmp_1, vec3_tmp_2, vec3_tmp_1);
 
-    s_tmp_2 = 2.f * s_tmp_1;
+    s_tmp_2 = 2.0f * s_tmp_1;
     vec3_cross(vec3_u, vec3_v, vec3_tmp_2);
     vec3_mul(vec3_tmp_2, s_tmp_2, vec3_tmp_2);
 
@@ -190,8 +188,9 @@ static unsigned char get_led_mask_by_q(float *vec4_q) small {
 
     for (i = 0; i < 1; i++) {
         rotate(ARR_VEC3_FACES_ORIENT[i], vec4_q, vec3_out);
-        // printf("Face %d:\t%f\t%f\t%f\r\n", (int)i, vec3_out[0], vec3_out[1], vec3_out[2]);
-        if (0 /* TODO */) {
+        if (IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
+         && IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
+         && IS_IN_RANGE_EPS(vec3_out[0], 1.0f, 0.2f)) {
             final_mask |= 0x01u << i;
         }
     }
@@ -282,7 +281,9 @@ void main(void) small {
         q_f[2] = q2;
         q_f[3] = q3;
 
-        printf("%f\t%f\t%f\t%f\r\n", q_f[0], q_f[1], q_f[2], q_f[3]);
+        printf("%f\t%f\t%f\r\n", accel_f[0], accel_f[1], accel_f[2]);
+
+        // printf("%f\t%f\t%f\t%f\r\n", q_f[0], q_f[1], q_f[2], q_f[3]);
 
         set_led(get_led_mask_by_q(q_f));
 
