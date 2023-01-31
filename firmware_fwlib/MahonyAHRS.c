@@ -21,8 +21,8 @@
 //---------------------------------------------------------------------------------------------------
 // Definitions
 
-#define TWO_K_P_DEF (2.0f * 0.8f)   // 2 * proportional gain (Kp)
-#define TWO_K_I_DEF (2.0f * 0.1f)   // 2 * integral gain (Ki)
+#define TWO_K_P_DEF (2.0f * 1.0f)   // 2 * proportional gain (Kp)
+#define TWO_K_I_DEF (2.0f * 0.15f)   // 2 * integral gain (Ki)
 
 //---------------------------------------------------------------------------------------------------
 // Variable definitions

@@ -54,52 +54,52 @@ struct int_param_s {
 #define MPU_INT_STATUS_DMP_5            (0x2000)
 
 /* Set up APIs */
-void mpu_init(struct int_param_s *int_param);
-void mpu_set_bypass(unsigned char bypass_on);
+__BIT mpu_init(struct int_param_s *int_param);
+__BIT mpu_set_bypass(unsigned char bypass_on);
 
 /* Configuration APIs */
-void mpu_lp_accel_mode(unsigned short rate);
-void mpu_lp_motion_interrupt(unsigned short thresh, unsigned char time,
+__BIT mpu_lp_accel_mode(unsigned short rate);
+__BIT mpu_lp_motion_interrupt(unsigned short thresh, unsigned char time,
     unsigned char lpa_freq);
-void mpu_set_int_level(unsigned char active_low);
-void mpu_set_int_latched(unsigned char enable);
+__BIT mpu_set_int_level(unsigned char active_low);
+__BIT mpu_set_int_latched(unsigned char enable);
 
-void mpu_set_dmp_state(unsigned char enable);
-void mpu_get_dmp_state(unsigned char *enabled);
+__BIT mpu_set_dmp_state(unsigned char enable);
+__BIT mpu_get_dmp_state(unsigned char *enabled);
 
-void mpu_get_lpf(unsigned short *lpf);
-void mpu_set_lpf(unsigned short lpf);
+__BIT mpu_get_lpf(unsigned short *lpf);
+__BIT mpu_set_lpf(unsigned short lpf);
 
-void mpu_get_gyro_fsr(unsigned short *fsr);
-void mpu_set_gyro_fsr(unsigned short fsr);
+__BIT mpu_get_gyro_fsr(unsigned short *fsr);
+__BIT mpu_set_gyro_fsr(unsigned short fsr);
 
-void mpu_get_accel_fsr(unsigned char *fsr);
-void mpu_set_accel_fsr(unsigned char fsr);
+__BIT mpu_get_accel_fsr(unsigned char *fsr);
+__BIT mpu_set_accel_fsr(unsigned char fsr);
 
-void mpu_get_gyro_sens(float *sens);
-void mpu_get_accel_sens(unsigned short *sens);
+__BIT mpu_get_gyro_sens(float *sens);
+__BIT mpu_get_accel_sens(unsigned short *sens);
 
-void mpu_get_sample_rate(unsigned short *rate);
-void mpu_set_sample_rate(unsigned short rate);
+__BIT mpu_get_sample_rate(unsigned short *rate);
+__BIT mpu_set_sample_rate(unsigned short rate);
 
-void mpu_get_fifo_config(unsigned char *sensors);
-void mpu_configure_fifo(unsigned char sensors);
+__BIT mpu_get_fifo_config(unsigned char *sensors);
+__BIT mpu_configure_fifo(unsigned char sensors);
 
-void mpu_get_power_state(unsigned char *power_on);
-void mpu_set_sensors(unsigned char sensors);
+__BIT mpu_get_power_state(unsigned char *power_on);
+__BIT mpu_set_sensors(unsigned char sensors);
 
 /* Data getter/setter APIs */
-void mpu_get_gyro_reg(short *data_);
-void mpu_get_accel_reg(short *data_);
-void mpu_get_temperature(long *data_);
+__BIT mpu_get_gyro_reg(short *data_);
+__BIT mpu_get_accel_reg(short *data_);
+__BIT mpu_get_temperature(long *data_);
 
-void mpu_get_int_status(short *status);
-void mpu_read_fifo(short *gyro, short *accel, unsigned char *sensors, unsigned char *more);
-void mpu_read_fifo_stream(unsigned short length, unsigned char *data_, unsigned char *more);
-void mpu_reset_fifo(void);
+__BIT mpu_get_int_status(short *status);
+__BIT mpu_read_fifo(short *gyro, short *accel, unsigned char *sensors, unsigned char *more);
+__BIT mpu_read_fifo_stream(unsigned short length, unsigned char *data_, unsigned char *more);
+__BIT mpu_reset_fifo(void);
 
-void mpu_reg_dump(void);
-void mpu_read_reg(unsigned char reg, unsigned char *data_);
+__BIT mpu_reg_dump(void);
+__BIT mpu_read_reg(unsigned char reg, unsigned char *data_);
 
 #endif  /* #ifndef _INV_MPU_H_ */
 

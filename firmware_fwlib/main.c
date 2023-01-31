@@ -40,6 +40,8 @@
 #define MPU_F_GYRO_SENS 16.375f
 #define MPU_F_ACCEL_SENS 16384.0f
 
+#define STEADY_THRESHOLD 3
+
 /* Array of initial face orientation vectors */
 __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
     {HALF_SQRT2, 0.0f, HALF_SQRT2},    /* PYR, X+ Z+ */
@@ -160,10 +162,9 @@ static void refresh_mpu(void) small {
     accel_s[1] = (short)(accel_sum_l[1] / count) + accel_bias_s[1];
     accel_s[2] = (short)(accel_sum_l[2] / count) + accel_bias_s[2];
 
-    if (gyro_s[0] == 0 && gyro_s[1] == 0 && gyro_s[2] == 0)
-        is_steady = 1;
-    else
-        is_steady = 0;
+    is_steady = (IS_IN_RANGE_EPS(gyro_s[0], 0, STEADY_THRESHOLD)
+              && IS_IN_RANGE_EPS(gyro_s[1], 0, STEADY_THRESHOLD)
+              && IS_IN_RANGE_EPS(gyro_s[2], 0, STEADY_THRESHOLD));
 }
 
 static void set_led(unsigned char leds) small {
@@ -188,6 +189,7 @@ static unsigned char get_led_mask_by_q(float *vec4_q) small {
 
     for (i = 0; i < 1; i++) {
         rotate(ARR_VEC3_FACES_ORIENT[i], vec4_q, vec3_out);
+        printf("#%d,%f,%f,%f\r\n", i, vec3_out[0], vec3_out[1], vec3_out[2]);
         if (IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
          && IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
          && IS_IN_RANGE_EPS(vec3_out[0], 1.0f, 0.2f)) {
@@ -232,7 +234,9 @@ void main(void) small {
     mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
 
     SYS_Delay(100);
+    
     /* IMU calibration */
+
     set_led(MASK_LED_WLD);
     for (i = 0; i < MPU_CALIB_ROUNDS; i++) {
         for (j = 0; j < MPU_CALIB_SAMPLES; j++) {
@@ -281,9 +285,7 @@ void main(void) small {
         q_f[2] = q2;
         q_f[3] = q3;
 
-        printf("%f\t%f\t%f\r\n", accel_f[0], accel_f[1], accel_f[2]);
-
-        // printf("%f\t%f\t%f\t%f\r\n", q_f[0], q_f[1], q_f[2], q_f[3]);
+        // printf("%f,%f,%f\r\n", accel_f[0], accel_f[1], accel_f[2]);
 
         set_led(get_led_mask_by_q(q_f));
 
