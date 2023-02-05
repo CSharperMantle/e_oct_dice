@@ -348,7 +348,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\inv_mpu.c</PathWithFileName>
+      <PathWithFileName>.\lib\eml\inv_mpu.c</PathWithFileName>
       <FilenameWithoutPath>inv_mpu.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -356,7 +356,7 @@
   </Group>
 
   <Group>
-    <GroupName>lib/fw_lib</GroupName>
+    <GroupName>lib/fwlib</GroupName>
     <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
@@ -368,7 +368,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\fw_i2c.c</PathWithFileName>
+      <PathWithFileName>.\lib\fwlib\fw_i2c.c</PathWithFileName>
       <FilenameWithoutPath>fw_i2c.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -380,7 +380,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\fw_sys.c</PathWithFileName>
+      <PathWithFileName>.\lib\fwlib\fw_sys.c</PathWithFileName>
       <FilenameWithoutPath>fw_sys.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -392,7 +392,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\fw_tim.c</PathWithFileName>
+      <PathWithFileName>.\lib\fwlib\fw_tim.c</PathWithFileName>
       <FilenameWithoutPath>fw_tim.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -404,7 +404,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\fw_uart.c</PathWithFileName>
+      <PathWithFileName>.\lib\fwlib\fw_uart.c</PathWithFileName>
       <FilenameWithoutPath>fw_uart.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -412,7 +412,7 @@
   </Group>
 
   <Group>
-    <GroupName>lib/mahony</GroupName>
+    <GroupName>lib/arhs</GroupName>
     <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
@@ -424,7 +424,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\MahonyAHRS.c</PathWithFileName>
+      <PathWithFileName>.\lib\arhs\MahonyAHRS.c</PathWithFileName>
       <FilenameWithoutPath>MahonyAHRS.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>

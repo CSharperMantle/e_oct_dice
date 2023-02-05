@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <math.h>
-#include "fw_hal.h"
-#include "inv_mpu.h"
-#include "MahonyAHRS.h"
+#include "fwlib/fw_hal.h"
+#include "eml/inv_mpu.h"
+#include "arhs/MahonyAHRS.h"
 
 #define HALF_SQRT2 (0.7071067811865f)
 

@@ -324,7 +324,7 @@
               <MiscControls></MiscControls>
               <Define>__CX51__, __CONF_MCU_MODEL=MCU_MODEL_STC8H8K64U, __CONF_FOSC=24000000UL, MPU6500</Define>
               <Undefine></Undefine>
-              <IncludePath></IncludePath>
+              <IncludePath>.\lib</IncludePath>
             </VariousControls>
           </C51>
           <Ax51>
@@ -389,42 +389,42 @@
             <File>
               <FileName>inv_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\inv_mpu.c</FilePath>
+              <FilePath>.\lib\eml\inv_mpu.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>lib/fw_lib</GroupName>
+          <GroupName>lib/fwlib</GroupName>
           <Files>
             <File>
               <FileName>fw_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fw_i2c.c</FilePath>
+              <FilePath>.\lib\fwlib\fw_i2c.c</FilePath>
             </File>
             <File>
               <FileName>fw_sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fw_sys.c</FilePath>
+              <FilePath>.\lib\fwlib\fw_sys.c</FilePath>
             </File>
             <File>
               <FileName>fw_tim.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fw_tim.c</FilePath>
+              <FilePath>.\lib\fwlib\fw_tim.c</FilePath>
             </File>
             <File>
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fw_uart.c</FilePath>
+              <FilePath>.\lib\fwlib\fw_uart.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>lib/mahony</GroupName>
+          <GroupName>lib/arhs</GroupName>
           <Files>
             <File>
               <FileName>MahonyAHRS.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\MahonyAHRS.c</FilePath>
+              <FilePath>.\lib\arhs\MahonyAHRS.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -813,42 +813,42 @@
             <File>
               <FileName>inv_mpu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\inv_mpu.c</FilePath>
+              <FilePath>.\lib\eml\inv_mpu.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>lib/fw_lib</GroupName>
+          <GroupName>lib/fwlib</GroupName>
           <Files>
             <File>
               <FileName>fw_i2c.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fw_i2c.c</FilePath>
+              <FilePath>.\lib\fwlib\fw_i2c.c</FilePath>
             </File>
             <File>
               <FileName>fw_sys.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fw_sys.c</FilePath>
+              <FilePath>.\lib\fwlib\fw_sys.c</FilePath>
             </File>
             <File>
               <FileName>fw_tim.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fw_tim.c</FilePath>
+              <FilePath>.\lib\fwlib\fw_tim.c</FilePath>
             </File>
             <File>
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\fw_uart.c</FilePath>
+              <FilePath>.\lib\fwlib\fw_uart.c</FilePath>
             </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>lib/mahony</GroupName>
+          <GroupName>lib/arhs</GroupName>
           <Files>
             <File>
               <FileName>MahonyAHRS.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\MahonyAHRS.c</FilePath>
+              <FilePath>.\lib\arhs\MahonyAHRS.c</FilePath>
             </File>
           </Files>
         </Group>
