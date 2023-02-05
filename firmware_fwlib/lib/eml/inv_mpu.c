@@ -26,7 +26,6 @@
 #define i2c_write(addr, reg, len, data_) (I2C_Write(addr, reg, data_, len) != HAL_OK)
 #define i2c_read(addr, reg, len, data_) (I2C_Read(addr, reg, data_, len) != HAL_OK)
 #define delay_ms(ms)            SYS_Delay(ms)
-#define get_ms(ptr)             ;
 #define reg_int_cb(param)       (0)
 #define min(a, b)               (((a) < (b)) ? (a) : (b))
 
@@ -806,10 +805,9 @@ __BIT mpu_lp_accel_mode(unsigned short rate)
 /**
  *  @brief      Read raw gyro data_ directly from the registers.
  *  @param[out] data_        Raw data_ in hardware units.
- *  @param[out] timestamp   Timestamp in milliseconds. Null if not needed.
  *  @return     0 if successful.
  */
-__BIT mpu_get_gyro_reg(short *data_, unsigned long *timestamp)
+__BIT mpu_get_gyro_reg(short *data_)
 {
     unsigned char tmp[6];
 
@@ -821,18 +819,15 @@ __BIT mpu_get_gyro_reg(short *data_, unsigned long *timestamp)
     data_[0] = (tmp[0] << 8) | tmp[1];
     data_[1] = (tmp[2] << 8) | tmp[3];
     data_[2] = (tmp[4] << 8) | tmp[5];
-    if (timestamp)
-        get_ms(timestamp);
     return 0;
 }
 
 /**
  *  @brief      Read raw accel data_ directly from the registers.
  *  @param[out] data_        Raw data_ in hardware units.
- *  @param[out] timestamp   Timestamp in milliseconds. Null if not needed.
  *  @return     0 if successful.
  */
-__BIT mpu_get_accel_reg(short *data_, unsigned long *timestamp)
+__BIT mpu_get_accel_reg(short *data_)
 {
     unsigned char tmp[6];
 
@@ -844,18 +839,15 @@ __BIT mpu_get_accel_reg(short *data_, unsigned long *timestamp)
     data_[0] = (tmp[0] << 8) | tmp[1];
     data_[1] = (tmp[2] << 8) | tmp[3];
     data_[2] = (tmp[4] << 8) | tmp[5];
-    if (timestamp)
-        get_ms(timestamp);
     return 0;
 }
 
 /**
  *  @brief      Read temperature data_ directly from the registers.
  *  @param[out] data_        Data in q16 format.
- *  @param[out] timestamp   Timestamp in milliseconds. Null if not needed.
  *  @return     0 if successful.
  */
-__BIT mpu_get_temperature(long *data_, unsigned long *timestamp)
+__BIT mpu_get_temperature(long *data_)
 {
     unsigned char tmp[2];
     short raw;
@@ -866,8 +858,6 @@ __BIT mpu_get_temperature(long *data_, unsigned long *timestamp)
     if (i2c_read(st.hw->addr, st.reg->temp, 2, tmp))
         return 1;
     raw = (tmp[0] << 8) | tmp[1];
-    if (timestamp)
-        get_ms(timestamp);
 
     data_[0] = (long)((35 + ((raw - (float)st.hw->temp_offset) / st.hw->temp_sens)) * 65536L);
     return 0;
@@ -1655,13 +1645,11 @@ __BIT mpu_get_int_status(short *status)
  *  return a non-zero error code.
  *  @param[out] gyro        Gyro data_ in hardware units.
  *  @param[out] accel       Accel data_ in hardware units.
- *  @param[out] timestamp   Timestamp in milliseconds.
  *  @param[out] sensors     Mask of sensors read from FIFO.
  *  @param[out] more        Number of remaining packets.
  *  @return     0 if successful.
  */
-__BIT mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp,
-        unsigned char *sensors, unsigned char *more)
+__BIT mpu_read_fifo(short *gyro, short *accel, unsigned char *sensors, unsigned char *more)
 {
     /* Assumes maximum packet size is gyro (6) + accel (6). */
     unsigned char data_[MAX_PACKET_LENGTH];
@@ -1701,7 +1689,6 @@ __BIT mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp,
             return 1;
         }
     }
-    get_ms((unsigned long*)timestamp);
 
     if (i2c_read(st.hw->addr, st.reg->fifo_r_w, packet_size, data_))
         return 1;
@@ -1955,8 +1942,10 @@ __BIT mpu_load_firmware(unsigned short length, const unsigned char *firmware,
             return 1;
         if (mpu_read_mem(ii, this_write, cur))
             return 1;
-        if (memcmp(firmware+ii, cur, this_write))
-            return -2;
+        for (jj = 0; jj < this_write; jj++) {
+            if (cur[jj] != firmware[ii+jj])
+                return 1;
+        }
     }
 
     /* Set program start address. */
@@ -2127,10 +2116,9 @@ static int setup_compass(void)
 /**
  *  @brief      Read raw compass data_.
  *  @param[out] data_        Raw data_ in hardware units.
- *  @param[out] timestamp   Timestamp in milliseconds. Null if not needed.
  *  @return     0 if successful.
  */
-__BIT mpu_get_compass_reg(short *data_, unsigned long *timestamp)
+__BIT mpu_get_compass_reg(short *data_)
 {
 #ifdef AK89xx_SECONDARY
     unsigned char tmp[9];
@@ -2170,8 +2158,6 @@ __BIT mpu_get_compass_reg(short *data_, unsigned long *timestamp)
     data_[1] = ((long)data_[1] * st.chip_cfg.mag_sens_adj[1]) >> 8;
     data_[2] = ((long)data_[2] * st.chip_cfg.mag_sens_adj[2]) >> 8;
 
-    if (timestamp)
-        get_ms(timestamp);
     return 0;
 #else
     return 1;

@@ -100,16 +100,14 @@ __BIT mpu_read_6050_accel_bias(long *accel_bias);
 __BIT mpu_set_accel_bias_6050_reg(const long *accel_bias);
 
 /* Data getter/setter APIs */
-__BIT mpu_get_gyro_reg(short *data_, unsigned long *timestamp);
-__BIT mpu_get_accel_reg(short *data_, unsigned long *timestamp);
-__BIT mpu_get_compass_reg(short *data_, unsigned long *timestamp);
-__BIT mpu_get_temperature(long *data_, unsigned long *timestamp);
+__BIT mpu_get_gyro_reg(short *data_);
+__BIT mpu_get_accel_reg(short *data_);
+__BIT mpu_get_compass_reg(short *data_);
+__BIT mpu_get_temperature(long *data_);
 
 __BIT mpu_get_int_status(short *status);
-__BIT mpu_read_fifo(short *gyro, short *accel, unsigned long *timestamp,
-    unsigned char *sensors, unsigned char *more);
-__BIT mpu_read_fifo_stream(unsigned short length, unsigned char *data_,
-    unsigned char *more);
+__BIT mpu_read_fifo(short *gyro, short *accel, unsigned char *sensors, unsigned char *more);
+__BIT mpu_read_fifo_stream(unsigned short length, unsigned char *data_, unsigned char *more);
 __BIT mpu_reset_fifo(void);
 
 __BIT mpu_write_mem(unsigned short mem_addr, unsigned short length,

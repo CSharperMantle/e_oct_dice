@@ -27,7 +27,6 @@
 #define i2c_write(addr, reg, len, data_) (I2C_Write(addr, reg, data_, len) != HAL_OK)
 #define i2c_read(addr, reg, len, data_) (I2C_Read(addr, reg, data_, len) != HAL_OK)
 #define delay_ms    SYS_Delay
-#define get_ms      (void)
 
 /* These defines are copied from dmpDefaultMPU6050.c in the general MPL
  * releases. These defines may change for each DMP image, so be sure to modify
@@ -205,6 +204,7 @@
 #define D_TILT3_H               (60)
 #define D_TILT3_L               (62)
 
+#define DMP_CODE_SIZE           (3062)
 const unsigned char DMP_FIRMWARE[DMP_CODE_SIZE] = {
     /* bank # 0 */
     0x00, 0x00, 0x70, 0x00, 0x00, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x02, 0x00, 0x03, 0x00, 0x00,
@@ -412,7 +412,6 @@ const unsigned char DMP_FIRMWARE[DMP_CODE_SIZE] = {
     0xac, 0xde, 0x80, 0x92, 0xa2, 0xf2, 0x4c, 0x82, 0xa8, 0xf1, 0xca, 0xf2, 0x35, 0xf1, 0x96, 0x88,
     0xa6, 0xd9, 0x00, 0xd8, 0xf1, 0xff
 };
-#define DMP_CODE_SIZE           (3062)
 
 #define DMP_CODE_START_ADDRESS  (0x0400u)
 
@@ -867,13 +866,11 @@ __BIT dmp_set_interrupt_mode(unsigned char mode)
  *  @param[out] gyro        Gyro data_ in hardware units.
  *  @param[out] accel       Accel data_ in hardware units.
  *  @param[out] quat        3-axis quaternion data_ in hardware units.
- *  @param[out] timestamp   Timestamp in milliseconds.
  *  @param[out] sensors     Mask of sensors read from FIFO.
  *  @param[out] more        Number of remaining packets.
  *  @return     0 if successful.
  */
-__BIT dmp_read_fifo(short *gyro, short *accel, long *quat,
-    unsigned long *timestamp, short *sensors, unsigned char *more)
+__BIT dmp_read_fifo(short *gyro, short *accel, long *quat, short *sensors, unsigned char *more)
 {
     unsigned char fifo_data[MAX_PACKET_LENGTH];
     unsigned char ii = 0;
@@ -943,7 +940,6 @@ __BIT dmp_read_fifo(short *gyro, short *accel, long *quat,
         sensors[0] |= INV_XYZ_GYRO;
     }
 
-    get_ms(timestamp);
     return 0;
 }
 
