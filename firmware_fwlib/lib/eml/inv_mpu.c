@@ -17,6 +17,7 @@
  *                  MPU9150 (or MPU6050 w/ AK8975 on the auxiliary bus)
  *                  MPU9250 (or MPU6500 w/ AK8963 on the auxiliary bus)
  */
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -929,7 +930,7 @@ __BIT mpu_read_6500_gyro_bias(long *gyro_bias) {
  *  @param[in]  gyro_bias  New biases.
  *  @return     0 if successful.
  */
-__BIT mpu_set_gyro_bias_reg(long *gyro_bias)
+__BIT mpu_set_gyro_bias_reg(const long *gyro_bias)
 {
     unsigned char data_[6] = {0, 0, 0, 0, 0, 0};
     long gyro_reg_bias[3] = {0, 0, 0};
@@ -1733,6 +1734,7 @@ __BIT mpu_read_fifo_stream(unsigned short length, unsigned char *data_,
 {
     unsigned char tmp[2];
     unsigned short fifo_count;
+
     if (!st.chip_cfg.dmp_on)
         return 1;
     if (!st.chip_cfg.sensors)
@@ -1743,6 +1745,7 @@ __BIT mpu_read_fifo_stream(unsigned short length, unsigned char *data_,
     fifo_count = (tmp[0] << 8) | tmp[1];
     if (fifo_count < length) {
         more[0] = 0;
+        printf("Expected %d, got %d\r\n", (int)length, (int)fifo_count);
         return 1;
     }
     if (fifo_count > (st.hw->max_fifo >> 1)) {

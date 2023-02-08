@@ -2,6 +2,7 @@
 #include <math.h>
 #include "fwlib/fw_hal.h"
 #include "eml/inv_mpu.h"
+#include "eml/inv_mpu_dmp_motion_driver.h"
 #include "arhs/MahonyAHRS.h"
 
 #define HALF_SQRT2 (0.7071067811865f)
@@ -32,15 +33,11 @@
 #define MPU_CALIB_ACCEL_X_GOAL 0
 #define MPU_CALIB_ACCEL_Y_GOAL 0
 #define MPU_CALIB_ACCEL_Z_GOAL 16384
-#define MPU_READ_SAMPLES 8
-#define MPU_CALIB_SAMPLES 64
-#define MPU_CALIB_ROUNDS 8
-#define MPU_GYRO_FSR 2000
-#define MPU_REFRESH_RATE_HZ 100
+#define MPU_CALIB_SAMPLES 128
+#define MPU_REFRESH_RATE_HZ 200
+// TODO: Do we really need these with DMP?
 #define MPU_F_GYRO_SENS 16.375f
 #define MPU_F_ACCEL_SENS 16384.0f
-
-#define STEADY_THRESHOLD 3
 
 /* Array of initial face orientation vectors */
 __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
@@ -58,30 +55,26 @@ __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
 __DATA int i = 0, j = 0;
 /* Raw gyro/accel readings */
 __DATA short gyro_s[3] = {0}, accel_s[3] = {0};
+__IDATA long quat_l[4] = {0};
 /* MPU FIFO status */
-__DATA unsigned char more = 0, sensors_mpu = 0;
+__DATA unsigned char more = 0;
+__DATA short sensors_mpu = 0;
 /* Computed orientation */
 __IDATA float gyro_f[3] = {0}, accel_f[3] = {0}, q_f[4] = {0};
-/* Summed gyro/accel readings, to be averaged */
-__IDATA long gyro_sum_l[3] = {0}, accel_sum_l[3] = {0};
-/* Flag indicating if the sensor is stationery or steady */
-__BIT is_steady = 0;
-/* Delta of bias of gyro/accel, used in calibration */
-__IDATA long gyro_calib_delta_l[3] = {0}, accel_calib_delta_l[3] = {0};
 /* Bias for gyro/accel, to be added to final readings */
-__IDATA short gyro_bias_s[3] = {0}, accel_bias_s[3] = {0};
+__IDATA long gyro_bias_l[3] = {0}, accel_bias_l[3] = {0};
 
 #define DEFINE_ACTIVATION_SHRINK(name, lambda)  \
 static float name(float x) small {  \
-    return (x > -(lambda) && x < (lambda)) ? 0.0f : x;  \
+return (x > -(lambda) && x < (lambda)) ? 0.0f : x;  \
 }
 
 DEFINE_ACTIVATION_SHRINK(gyro_shrink, 0.375f)
 
 static void vec3_dot(const float *vec3_x, const float *vec3_y, float *s_out) small {
     *s_out = (vec3_x[0] * vec3_y[0]
-            + vec3_x[1] * vec3_y[1]
-            + vec3_x[2] * vec3_y[2]);
+        + vec3_x[1] * vec3_y[1]
+        + vec3_x[2] * vec3_y[2]);
 }
 
 static void vec3_cross(const float *vec3_x, const float *vec3_y, float *vec3_out) small {
@@ -139,32 +132,34 @@ static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) co
  * Results stored in `gyro_s`, `accel_s`.
  */
 static void refresh_mpu(void) small {
-    __DATA int count = 0;
-
-    gyro_sum_l[0] = gyro_sum_l[1] = gyro_sum_l[2] = 0;
-    accel_sum_l[0] = accel_sum_l[1] = accel_sum_l[2] = 0;
-
     do {
-        mpu_read_fifo(gyro_s, accel_s, &sensors_mpu, &more);
-        gyro_sum_l[0] += (long)gyro_s[0];
-        gyro_sum_l[1] += (long)gyro_s[1];
-        gyro_sum_l[2] += (long)gyro_s[2];
-        accel_sum_l[0] += (long)accel_s[0];
-        accel_sum_l[1] += (long)accel_s[1];
-        accel_sum_l[2] += (long)accel_s[2];
-        count++;
-    } while (more && (count <= MPU_READ_SAMPLES));
+        dmp_read_fifo(gyro_s, accel_s, quat_l, &sensors_mpu, &more);
+    } while (more);
+}
 
-    gyro_s[0] = (short)(gyro_sum_l[0] / count) + gyro_bias_s[0];
-    gyro_s[1] = (short)(gyro_sum_l[1] / count) + gyro_bias_s[1];
-    gyro_s[2] = (short)(gyro_sum_l[2] / count) + gyro_bias_s[2];
-    accel_s[0] = (short)(accel_sum_l[0] / count) + accel_bias_s[0];
-    accel_s[1] = (short)(accel_sum_l[1] / count) + accel_bias_s[1];
-    accel_s[2] = (short)(accel_sum_l[2] / count) + accel_bias_s[2];
+static void calib_mpu(void) small {  
+    for (i = 0; i < MPU_CALIB_SAMPLES; i++) {
+        dmp_read_fifo(gyro_s, accel_s, NULL, &sensors_mpu, &more);
+        gyro_bias_l[0] += (long)(gyro_s[0] - MPU_CALIB_GYRO_X_GOAL);
+        gyro_bias_l[1] += (long)(gyro_s[1] - MPU_CALIB_GYRO_Y_GOAL);
+        gyro_bias_l[2] += (long)(gyro_s[2] - MPU_CALIB_GYRO_Z_GOAL);
+        accel_bias_l[0] += (long)(accel_s[0] - MPU_CALIB_ACCEL_X_GOAL);
+        accel_bias_l[1] += (long)(accel_s[1] - MPU_CALIB_ACCEL_Y_GOAL);
+        accel_bias_l[2] += (long)(accel_s[2] - MPU_CALIB_ACCEL_Z_GOAL);
+    }
+    gyro_bias_l[0] /= MPU_CALIB_SAMPLES;
+    gyro_bias_l[1] /= MPU_CALIB_SAMPLES;
+    gyro_bias_l[2] /= MPU_CALIB_SAMPLES;
+    accel_bias_l[0] /= MPU_CALIB_SAMPLES;
+    accel_bias_l[1] /= MPU_CALIB_SAMPLES;
+    accel_bias_l[2] /= MPU_CALIB_SAMPLES;
 
-    is_steady = (IS_IN_RANGE_EPS(gyro_s[0], 0, STEADY_THRESHOLD)
-              && IS_IN_RANGE_EPS(gyro_s[1], 0, STEADY_THRESHOLD)
-              && IS_IN_RANGE_EPS(gyro_s[2], 0, STEADY_THRESHOLD));
+    mpu_set_gyro_bias_reg(gyro_bias_l);
+    mpu_set_accel_bias_6500_reg(accel_bias_l);
+    dmp_set_gyro_bias(gyro_bias_l);
+    dmp_set_accel_bias(accel_bias_l);
+
+    SYS_Delay(10);
 }
 
 static void set_led(unsigned char leds) small {
@@ -191,13 +186,13 @@ static unsigned char get_led_mask_by_q(float *vec4_q) small {
         rotate(ARR_VEC3_FACES_ORIENT[i], vec4_q, vec3_out);
         // printf("#%d,%f,%f,%f\r\n", i, vec3_out[0], vec3_out[1], vec3_out[2]);
         if (IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
-         && IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
-         && IS_IN_RANGE_EPS(vec3_out[0], 1.0f, 0.2f)) {
+           && IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
+           && IS_IN_RANGE_EPS(vec3_out[0], 1.0f, 0.2f)) {
             final_mask |= 0x01u << i;
-        }
     }
+}
 
-    return final_mask;
+return final_mask;
 }
 
 void main(void) small {
@@ -228,67 +223,44 @@ void main(void) small {
 
     mpu_init(NULL);
     mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
-    mpu_set_gyro_fsr(MPU_GYRO_FSR);
-    mpu_set_accel_fsr(2);
+    mpu_set_gyro_fsr(1000);
+    mpu_set_accel_fsr(8);
+    mpu_set_lpf(5);
     mpu_configure_fifo(INV_XYZ_GYRO | INV_XYZ_ACCEL);
     mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
 
+    dmp_load_motion_driver_firmware();
+    dmp_enable_feature(DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_RAW_GYRO);
+    dmp_set_fifo_rate(MPU_REFRESH_RATE_HZ);
+    mpu_set_dmp_state(1);
+
+    calib_mpu();
+
     SYS_Delay(100);
-    
-    /* IMU calibration */
 
-    set_led(MASK_LED_WLD);
-    for (i = 0; i < MPU_CALIB_ROUNDS; i++) {
-        for (j = 0; j < MPU_CALIB_SAMPLES; j++) {
-            refresh_mpu();
-            gyro_calib_delta_l[0] += MPU_CALIB_GYRO_X_GOAL - (long)gyro_s[0];
-            gyro_calib_delta_l[1] += MPU_CALIB_GYRO_Y_GOAL - (long)gyro_s[1];
-            gyro_calib_delta_l[2] += MPU_CALIB_GYRO_Z_GOAL - (long)gyro_s[2];
-            accel_calib_delta_l[0] += MPU_CALIB_ACCEL_X_GOAL - (long)accel_s[0];
-            accel_calib_delta_l[1] += MPU_CALIB_ACCEL_Y_GOAL - (long)accel_s[1];
-            accel_calib_delta_l[2] += MPU_CALIB_ACCEL_Z_GOAL - (long)accel_s[2];
-            SYS_Delay(5);
-        }
-        gyro_calib_delta_l[0] /= MPU_CALIB_SAMPLES;
-        gyro_calib_delta_l[1] /= MPU_CALIB_SAMPLES;
-        gyro_calib_delta_l[2] /= MPU_CALIB_SAMPLES;
-        accel_calib_delta_l[0] /= MPU_CALIB_SAMPLES;
-        accel_calib_delta_l[1] /= MPU_CALIB_SAMPLES;
-        accel_calib_delta_l[2] /= MPU_CALIB_SAMPLES;
-
-        gyro_bias_s[0] += (short)gyro_calib_delta_l[0];
-        gyro_bias_s[1] += (short)gyro_calib_delta_l[1];
-        gyro_bias_s[2] += (short)gyro_calib_delta_l[2];
-        accel_bias_s[0] += (short)accel_calib_delta_l[0];
-        accel_bias_s[1] += (short)accel_calib_delta_l[1];
-        accel_bias_s[2] += (short)accel_calib_delta_l[2];
-
-        SYS_Delay(10);
-    }
-    set_led(0);
+    dmp_enable_feature(DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_RAW_GYRO);
 
     /* Main loop */
-    while (1) {
+    do {
         refresh_mpu();
 
-        gyro_f[0] = gyro_shrink(((float)gyro_s[0]) / MPU_F_GYRO_SENS);
-        gyro_f[1] = gyro_shrink(((float)gyro_s[1]) / MPU_F_GYRO_SENS);
-        gyro_f[2] = gyro_shrink(((float)gyro_s[2]) / MPU_F_GYRO_SENS);
+        gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
+        gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
+        gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
 
         accel_f[0] = ((float)accel_s[0]) / MPU_F_ACCEL_SENS;
         accel_f[1] = ((float)accel_s[1]) / MPU_F_ACCEL_SENS;
         accel_f[2] = ((float)accel_s[2]) / MPU_F_ACCEL_SENS;
 
-        MahonyAHRSUpdateIMU(gyro_f[0], gyro_f[1], gyro_f[2], accel_f[0], accel_f[1], accel_f[2], 0.005f);
-        q_f[0] = q0;
-        q_f[1] = q1;
-        q_f[2] = q2;
-        q_f[3] = q3;
+        // q_f[0] = q0;
+        // q_f[1] = q1;
+        // q_f[2] = q2;
+        // q_f[3] = q3;
 
-        printf("%f,%f,%f\r\n", accel_f[0], accel_f[1], accel_f[2]);
+        printf("%d\t%d\t%d\r\n", gyro_s[0], gyro_s[1], gyro_s[2]);
 
-        set_led(get_led_mask_by_q(q_f));
+        // set_led(get_led_mask_by_q(q_f));
 
         SYS_Delay(10);
-    }
+    } while (1);
 }

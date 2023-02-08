@@ -111,7 +111,7 @@ typedef enum
 #define I2C_SetPort(__ALTER_PORT__)    (P_SW2 = P_SW2 & ~(0x03 << 4) | ((__ALTER_PORT__) << 4))
 
 
-uint8_t I2C_Write(uint8_t devAddr, uint8_t memAddr, uint8_t *dat, uint16_t size);
-uint8_t I2C_Read(uint8_t devAddr, uint8_t memAddr, uint8_t *buf, uint16_t size);
+uint8_t I2C_Write(uint8_t devAddr, uint8_t memAddr, uint8_t *dat, uint16_t size) small;
+uint8_t I2C_Read(uint8_t devAddr, uint8_t memAddr, uint8_t *buf, uint16_t size) small;
 
 #endif
