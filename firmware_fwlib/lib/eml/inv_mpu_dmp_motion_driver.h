@@ -43,11 +43,11 @@ __BIT dmp_set_gyro_bias(long *bias);
 __BIT dmp_set_accel_bias(long *bias);
 
 /* LP quaternion functions. */
-__BIT dmp_enable_lp_quat(unsigned char enable);
-__BIT dmp_enable_6x_lp_quat(unsigned char enable);
+__BIT dmp_enable_lp_quat(__BIT enable);
+__BIT dmp_enable_6x_lp_quat(__BIT enable);
 
 /* DMP gyro calibration functions. */
-__BIT dmp_enable_gyro_cal(unsigned char enable);
+__BIT dmp_enable_gyro_cal(__BIT enable);
 
 /* Read function. This function should be called whenever the MPU interrupt is
  * detected.

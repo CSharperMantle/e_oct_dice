@@ -369,7 +369,7 @@ enum lp_accel_rate_e {
 #endif
 
 #if defined MPU6050
-const struct gyro_reg_s reg = {
+__CODE const struct gyro_reg_s reg = {
     0x75,
     0x19,
     0x1A,
@@ -412,7 +412,7 @@ const struct gyro_reg_s reg = {
     0x01
 #endif
 };
-const struct hw_s hw = {
+__CODE const struct hw_s hw = {
     0x68,
     1024,
     118,
@@ -423,8 +423,7 @@ const struct hw_s hw = {
     ,AK89xx_FSR
 #endif
 };
-
-const struct test_s test = {
+__CODE const struct test_s test = {
     32768/250,
     32768/16,
     0,    /* 1kHz. */
@@ -440,14 +439,13 @@ const struct test_s test = {
     0.95f,
     0.14f
 };
-
 static struct gyro_state_s st = {
     &reg,
     &hw,
     { 0 }, &test
 };
 #elif defined MPU6500
-const struct gyro_reg_s reg = {
+__CODE const struct gyro_reg_s reg = {
     0x75,
     0x19,
     0x1A,
@@ -492,7 +490,7 @@ const struct gyro_reg_s reg = {
     0x49
 #endif
 };
-const struct hw_s hw = {
+__CODE const struct hw_s hw = {
     0x68,
     1024,
     128,
@@ -503,8 +501,7 @@ const struct hw_s hw = {
     ,AK89xx_FSR
 #endif
 };
-
-const struct test_s test = {
+__CODE const struct test_s test = {
     32768/250,
     32768/2,  //FSR = +-2G = 16384 LSB/G
     0,    /* 1kHz. */
@@ -522,7 +519,6 @@ const struct test_s test = {
     .5f,   //500 mg for Accel Criteria C
     10    //10ms sample time wait
 };
-
 static struct gyro_state_s st = {
     &reg,
     &hw,

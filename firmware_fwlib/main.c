@@ -30,14 +30,8 @@
 #define MPU_CALIB_GYRO_X_GOAL 0
 #define MPU_CALIB_GYRO_Y_GOAL 0
 #define MPU_CALIB_GYRO_Z_GOAL 0
-#define MPU_CALIB_ACCEL_X_GOAL 0
-#define MPU_CALIB_ACCEL_Y_GOAL 0
-#define MPU_CALIB_ACCEL_Z_GOAL 16384
-#define MPU_CALIB_SAMPLES 128
+#define MPU_CALIB_SAMPLES 256
 #define MPU_REFRESH_RATE_HZ 200
-// TODO: Do we really need these with DMP?
-#define MPU_F_GYRO_SENS 16.375f
-#define MPU_F_ACCEL_SENS 16384.0f
 
 /* Array of initial face orientation vectors */
 __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
@@ -53,16 +47,16 @@ __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
 
 /* Accumulator */
 __DATA int i = 0, j = 0;
-/* Raw gyro/accel readings */
-__DATA short gyro_s[3] = {0}, accel_s[3] = {0};
-__IDATA long quat_l[4] = {0};
+/* Raw gyro readings */
+__DATA short gyro_s[3] = {0};
 /* MPU FIFO status */
 __DATA unsigned char more = 0;
 __DATA short sensors_mpu = 0;
 /* Computed orientation */
-__IDATA float gyro_f[3] = {0}, accel_f[3] = {0}, q_f[4] = {0};
-/* Bias for gyro/accel, to be added to final readings */
-__IDATA long gyro_bias_l[3] = {0}, accel_bias_l[3] = {0};
+__DATA long quat_l[4] = {0};
+__DATA float q_f[4] = {0};
+/* Bias for gyro, to be added to final readings */
+__IDATA long gyro_bias_l[3] = {0};
 
 #define DEFINE_ACTIVATION_SHRINK(name, lambda)  \
 static float name(float x) small {  \
@@ -95,10 +89,10 @@ static void vec3_add(const float *vec3_x, const float *vec3_y, float *vec3_out) 
     vec3_out[2] = vec3_x[2] + vec3_y[2];
 }
 
-static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) compact {
-    __PDATA float s_tmp_1 = 0.0f, s_tmp_2 = 0.0f;
-    __PDATA float *vec3_u = NULL;
-    __PDATA float vec3_tmp_1[3] = 0.0f, vec3_tmp_2[3] = 0.0f;
+static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) small {
+    __IDATA float s_tmp_1 = 0.0f, s_tmp_2 = 0.0f;
+    __IDATA float *vec3_u = NULL;
+    __IDATA float vec3_tmp_1[3] = {0.0f, 0.0f, 0.0f}, vec3_tmp_2[3] = {0.0f, 0.0f, 0.0f};
 
     vec3_out[0] = vec3_out[1] = vec3_out[2] = 0.0f;
     
@@ -124,40 +118,26 @@ static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) co
     vec3_add(vec3_tmp_1, vec3_tmp_2, vec3_out);
 }
 
-/*
- * Refresh MPU data by batch-reading from FIFO and averaging.
- * This function also adds bias to the readings.
- *
- * Affects `gyro_sum_l`, `accel_sum_l`.
- * Results stored in `gyro_s`, `accel_s`.
- */
 static void refresh_mpu(void) small {
     do {
-        dmp_read_fifo(gyro_s, accel_s, quat_l, &sensors_mpu, &more);
+        dmp_read_fifo(NULL, NULL, quat_l, &sensors_mpu, &more);
     } while (more);
 }
 
-static void calib_mpu(void) small {  
+static void calib_mpu(void) small {
+    dmp_enable_feature(DMP_FEATURE_SEND_RAW_GYRO);
     for (i = 0; i < MPU_CALIB_SAMPLES; i++) {
-        dmp_read_fifo(gyro_s, accel_s, NULL, &sensors_mpu, &more);
+        dmp_read_fifo(gyro_s, NULL, NULL, &sensors_mpu, &more);
         gyro_bias_l[0] += (long)(gyro_s[0] - MPU_CALIB_GYRO_X_GOAL);
         gyro_bias_l[1] += (long)(gyro_s[1] - MPU_CALIB_GYRO_Y_GOAL);
         gyro_bias_l[2] += (long)(gyro_s[2] - MPU_CALIB_GYRO_Z_GOAL);
-        accel_bias_l[0] += (long)(accel_s[0] - MPU_CALIB_ACCEL_X_GOAL);
-        accel_bias_l[1] += (long)(accel_s[1] - MPU_CALIB_ACCEL_Y_GOAL);
-        accel_bias_l[2] += (long)(accel_s[2] - MPU_CALIB_ACCEL_Z_GOAL);
     }
     gyro_bias_l[0] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[1] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[2] /= MPU_CALIB_SAMPLES;
-    accel_bias_l[0] /= MPU_CALIB_SAMPLES;
-    accel_bias_l[1] /= MPU_CALIB_SAMPLES;
-    accel_bias_l[2] /= MPU_CALIB_SAMPLES;
 
     mpu_set_gyro_bias_reg(gyro_bias_l);
-    mpu_set_accel_bias_6500_reg(accel_bias_l);
     dmp_set_gyro_bias(gyro_bias_l);
-    dmp_set_accel_bias(accel_bias_l);
 
     SYS_Delay(10);
 }
@@ -230,7 +210,6 @@ void main(void) small {
     mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
 
     dmp_load_motion_driver_firmware();
-    dmp_enable_feature(DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_RAW_GYRO);
     dmp_set_fifo_rate(MPU_REFRESH_RATE_HZ);
     mpu_set_dmp_state(1);
 
@@ -238,19 +217,11 @@ void main(void) small {
 
     SYS_Delay(100);
 
-    dmp_enable_feature(DMP_FEATURE_SEND_RAW_ACCEL | DMP_FEATURE_SEND_RAW_GYRO);
+    dmp_enable_feature(DMP_FEATURE_6X_LP_QUAT);
 
     /* Main loop */
     do {
         refresh_mpu();
-
-        gyro_f[0] = ((float)gyro_s[0]) / MPU_F_GYRO_SENS;
-        gyro_f[1] = ((float)gyro_s[1]) / MPU_F_GYRO_SENS;
-        gyro_f[2] = ((float)gyro_s[2]) / MPU_F_GYRO_SENS;
-
-        accel_f[0] = ((float)accel_s[0]) / MPU_F_ACCEL_SENS;
-        accel_f[1] = ((float)accel_s[1]) / MPU_F_ACCEL_SENS;
-        accel_f[2] = ((float)accel_s[2]) / MPU_F_ACCEL_SENS;
 
         // q_f[0] = q0;
         // q_f[1] = q1;

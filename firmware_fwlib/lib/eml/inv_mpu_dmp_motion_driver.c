@@ -766,7 +766,7 @@ __BIT dmp_get_enabled_features(unsigned short *mask)
  *  @param[in]  enable  1 to enable gyro calibration.
  *  @return     0 if successful.
  */
-__BIT dmp_enable_gyro_cal(unsigned char enable)
+__BIT dmp_enable_gyro_cal(__BIT enable)
 {
     if (enable) {
         unsigned char regs[9] = {0xb8, 0xaa, 0xb3, 0x8d, 0xb4, 0x98, 0x0d, 0x35, 0x5d};
@@ -784,7 +784,7 @@ __BIT dmp_enable_gyro_cal(unsigned char enable)
  *  @param[in]  enable  1 to enable 3-axis quaternion.
  *  @return     0 if successful.
  */
-__BIT dmp_enable_lp_quat(unsigned char enable)
+__BIT dmp_enable_lp_quat(__BIT enable)
 {
     unsigned char regs[4];
     if (enable) {
@@ -808,7 +808,7 @@ __BIT dmp_enable_lp_quat(unsigned char enable)
  *  @param[in]   enable  1 to enable 6-axis quaternion.
  *  @return      0 if successful.
  */
-__BIT dmp_enable_6x_lp_quat(unsigned char enable)
+__BIT dmp_enable_6x_lp_quat(__BIT enable)
 {
     unsigned char regs[4];
     if (enable) {
@@ -817,7 +817,7 @@ __BIT dmp_enable_6x_lp_quat(unsigned char enable)
         regs[2] = DINA30;
         regs[3] = DINA38;
     } else
-    memset(regs, 0xA3, 4);
+        memset(regs, 0xA3, 4);
 
     mpu_write_mem(CFG_8, 4, regs);
 
@@ -920,30 +920,30 @@ __BIT dmp_read_fifo(short *gyro, short *accel, long *quat, short *sensors, unsig
             (quat_mag_sq > QUAT_MAG_SQ_MAX)) {
             /* Quaternion is outside of the acceptable threshold. */
             mpu_reset_fifo();
-        sensors[0] = 0;
-        return 1;
-    }
-    sensors[0] |= INV_WXYZ_QUAT;
+            sensors[0] = 0;
+            return 1;
+        }
+        sensors[0] |= INV_WXYZ_QUAT;
 #endif
-}
+    }
 
-if (dmp.feature_mask & DMP_FEATURE_SEND_RAW_ACCEL) {
-    accel[0] = ((short)fifo_data[ii+0] << 8) | fifo_data[ii+1];
-    accel[1] = ((short)fifo_data[ii+2] << 8) | fifo_data[ii+3];
-    accel[2] = ((short)fifo_data[ii+4] << 8) | fifo_data[ii+5];
-    ii += 6;
-    sensors[0] |= INV_XYZ_ACCEL;
-}
+    if (dmp.feature_mask & DMP_FEATURE_SEND_RAW_ACCEL) {
+        accel[0] = ((short)fifo_data[ii+0] << 8) | fifo_data[ii+1];
+        accel[1] = ((short)fifo_data[ii+2] << 8) | fifo_data[ii+3];
+        accel[2] = ((short)fifo_data[ii+4] << 8) | fifo_data[ii+5];
+        ii += 6;
+        sensors[0] |= INV_XYZ_ACCEL;
+    }
 
-if (dmp.feature_mask & DMP_FEATURE_SEND_ANY_GYRO) {
-    gyro[0] = ((short)fifo_data[ii+0] << 8) | fifo_data[ii+1];
-    gyro[1] = ((short)fifo_data[ii+2] << 8) | fifo_data[ii+3];
-    gyro[2] = ((short)fifo_data[ii+4] << 8) | fifo_data[ii+5];
-    ii += 6;
-    sensors[0] |= INV_XYZ_GYRO;
-}
-
-return 0;
+    if (dmp.feature_mask & DMP_FEATURE_SEND_ANY_GYRO) {
+        gyro[0] = ((short)fifo_data[ii+0] << 8) | fifo_data[ii+1];
+        gyro[1] = ((short)fifo_data[ii+2] << 8) | fifo_data[ii+3];
+        gyro[2] = ((short)fifo_data[ii+4] << 8) | fifo_data[ii+5];
+        ii += 6;
+        sensors[0] |= INV_XYZ_GYRO;
+    }
+    
+    return 0;
 }
 
 /**
