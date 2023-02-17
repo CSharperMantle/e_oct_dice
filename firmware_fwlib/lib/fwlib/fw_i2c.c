@@ -19,7 +19,6 @@ uint8_t I2C_Write(uint8_t devAddr, uint8_t memAddr, uint8_t *dat, uint16_t size)
 {
     devAddr <<= 1;  // Shift 7-bit address to left by 1 for room for R/W bit.
 
-    // printf("I2C W\tA 0x%X\tR 0x%X\tS 0x%X\tD ", (unsigned)devAddr, (unsigned)memAddr, (unsigned)size);
     SFRX_ON();
     I2C_MasterStart();
     I2C_MasterSendData(devAddr & 0xFE);
@@ -30,12 +29,10 @@ uint8_t I2C_Write(uint8_t devAddr, uint8_t memAddr, uint8_t *dat, uint16_t size)
     {
         I2C_MasterSendData(*dat);
         I2C_MasterRxAck();
-        // printf("0x%X ", *dat);
         dat++;
     }
     I2C_MasterStop();
     SFRX_OFF();
-    // printf("\r\n");
     return HAL_OK;
 }
 
@@ -43,7 +40,6 @@ uint8_t I2C_Read(uint8_t devAddr, uint8_t memAddr, uint8_t *buf, uint16_t size) 
 {
     devAddr <<= 1;  // Shift 7-bit address to left by 1 for room for R/W bit.
 
-    // printf("I2C W\tA 0x%X\tR 0x%X\tS 0x%X\tD ", (unsigned)devAddr, (unsigned)memAddr, (unsigned)size);
     SFRX_ON();
     I2C_MasterStart();
     I2C_MasterSendData(devAddr & 0xFE);
@@ -65,11 +61,9 @@ uint8_t I2C_Read(uint8_t devAddr, uint8_t memAddr, uint8_t *buf, uint16_t size) 
         {
             I2C_MasterAck();
         }
-        // printf("0x%X ", *buf);
         buf++;
     }
     I2C_MasterStop();
     SFRX_OFF();
-    // printf("\r\n");
     return HAL_OK;
 }
