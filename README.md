@@ -8,7 +8,7 @@ This project is divided into subdirectories listed below:
 
 * `firmware_fwlib`: Keil C firmware project for onboard MCU
 * `hardware`: Schematic and PCB designs
-* `physical`: Outer solid shell designs
+* `physical`: 3D solid shell designs
 
 ## Software requirements
 
@@ -53,7 +53,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 You may also obtain a copy of this license at [LICENSE-BSD](LICENSE-BSD).
 
-### PCB, schematic, physical and anything other than code: CC BY-SA 4.0 International
+### PCB, schematic, physical design and everything else: CC BY-SA 4.0 International
 
 This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
