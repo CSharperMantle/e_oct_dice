@@ -24,9 +24,7 @@
 #include "dmpmap.h"
 #include "fwlib/fw_hal.h"
 
-#define i2c_write(addr, reg, len, data_) (I2C_Write(addr, reg, data_, len) != HAL_OK)
-#define i2c_read(addr, reg, len, data_) (I2C_Read(addr, reg, data_, len) != HAL_OK)
-#define delay_ms    SYS_Delay
+#define delay_ms(ms)    SYS_Delay(ms)
 
 /* These defines are copied from dmpDefaultMPU6050.c in the general MPL
  * releases. These defines may change for each DMP image, so be sure to modify

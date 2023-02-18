@@ -1,4 +1,5 @@
 // Copyright 2021 IOsetting <iosetting(at)outlook.com>
+// Copyright 2022-2023 Rong Bao (CSharperMantle) <baorong2005@126.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +16,7 @@
 #include <stdio.h>
 #include "fw_i2c.h"
 
-uint8_t I2C_Write(uint8_t devAddr, uint8_t memAddr, uint8_t *dat, uint16_t size) small
+void I2C_Write(uint8_t devAddr, uint8_t memAddr, uint8_t *dat, uint16_t size) small
 {
     devAddr <<= 1;  // Shift 7-bit address to left by 1 for room for R/W bit.
 
@@ -33,10 +34,9 @@ uint8_t I2C_Write(uint8_t devAddr, uint8_t memAddr, uint8_t *dat, uint16_t size)
     }
     I2C_MasterStop();
     SFRX_OFF();
-    return HAL_OK;
 }
 
-uint8_t I2C_Read(uint8_t devAddr, uint8_t memAddr, uint8_t *buf, uint16_t size) small
+void I2C_Read(uint8_t devAddr, uint8_t memAddr, uint8_t *buf, uint16_t size) small
 {
     devAddr <<= 1;  // Shift 7-bit address to left by 1 for room for R/W bit.
 
@@ -65,5 +65,4 @@ uint8_t I2C_Read(uint8_t devAddr, uint8_t memAddr, uint8_t *buf, uint16_t size) 
     }
     I2C_MasterStop();
     SFRX_OFF();
-    return HAL_OK;
 }

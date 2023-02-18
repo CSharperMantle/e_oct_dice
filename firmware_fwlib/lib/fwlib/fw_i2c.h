@@ -1,4 +1,5 @@
 // Copyright 2021 IOsetting <iosetting(at)outlook.com>
+// Copyright 2022-2023 Rong Bao (CSharperMantle) <baorong2005@126.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -111,7 +112,7 @@ typedef enum
 #define I2C_SetPort(__ALTER_PORT__)    (P_SW2 = P_SW2 & ~(0x03 << 4) | ((__ALTER_PORT__) << 4))
 
 
-uint8_t I2C_Write(uint8_t devAddr, uint8_t memAddr, uint8_t *dat, uint16_t size) small;
-uint8_t I2C_Read(uint8_t devAddr, uint8_t memAddr, uint8_t *buf, uint16_t size) small;
+void I2C_Write(uint8_t devAddr, uint8_t memAddr, uint8_t *dat, uint16_t size) small;
+void I2C_Read(uint8_t devAddr, uint8_t memAddr, uint8_t *buf, uint16_t size) small;
 
 #endif
