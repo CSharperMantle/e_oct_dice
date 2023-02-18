@@ -55,8 +55,14 @@ You may also obtain a copy of this license at [LICENSE-BSD](LICENSE-BSD).
 
 ### PCB, schematic, physical and anything other than code: CC BY-SA 4.0 International
 
-```plain
 This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
-```
 
 You may also obtain a copy of the legal code of this license at [LICENSE-CC-BYSA-40](LICENSE-CC-BYSA-40).
+
+## OSS used in this project
+
+### [FwLib_STC8](https://github.com/IOsetting/FwLib_STC8)
+
+**Author:** IOsetting
+**Description:** A lite firmware library for STC8G/STC8H series MCU
+**License:** Apache 2.0 license
