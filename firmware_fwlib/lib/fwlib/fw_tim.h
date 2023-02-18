@@ -1,4 +1,5 @@
-// Copyright 2021 IOsetting <iosetting(at)outlook.com>
+// Copyright 2021 IOsetting <iosetting(at)outlook.com
+// Copyright 2022-2023 Rong Bao (CSharperMantle) <baorong2005@126.com>>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,28 +62,5 @@ void TIM_Timer0_Config(HAL_State_t freq1t, TIM_TimerMode_t mode, uint16_t freque
 #define TIM_Timer1_SetInitValue(__TH__, __TL__)  do{ TH1 = (__TH__); TL1 = (__TL__); }while(0)
 
 void TIM_Timer1_Config(HAL_State_t freq1t, TIM_TimerMode_t mode, uint16_t frequency);
-
-
-/***************************** /
- * Timer 2,3,4 (STC8H3K only)
- * 
- *                     ||=> 12T Mode => |
- *                     |                |   |Counter|                     |=> TxIF Interrupt
- *  SYSCLK => TMxPS => |                |=> |Timer  | => TxR => TxH|TxL =>|
- *                     |                |                                 |=> TxCLKO => Output
- *                     ||=>  1T Mode => |
-*/
-#define TIM_Timer2_SetRunState(__STATE__)   SFR_ASSIGN(AUXR, 4, __STATE__)
-#define TIM_Timer2_FuncCounter              SFR_SET(AUXR, 3)
-#define TIM_Timer2_FuncTimer                SFR_RESET(AUXR, 3)
-// ON:FOSC, OFF:FOSC/12
-#define TIM_Timer2_Set1TMode(__STATE__)     SFR_ASSIGN(AUXR, 2, __STATE__)
-// Enable output on P1.3, when counter overflow, P1.3 switch voltage level
-#define TIM_Timer2_SetOutput(__STATE__)     SFR_ASSIGN(INTCLKO, 2, __STATE__)
-#define TIM_Timer2_SetInitValue(__TH__, __TL__)  do{ T2H = (__TH__); T2L = (__TL__); }while(0)
-// Timer2 Prescaler: [0, 255]
-#define TIM_Timer2_SetPreScaler(__PRE__)  do{SFRX_ON(); TM2PS = (__PRE__); SFRX_OFF();}while(0)
-
-void TIM_Timer2_Config(HAL_State_t freq1t, uint8_t prescaler, uint16_t frequency);
 
 #endif

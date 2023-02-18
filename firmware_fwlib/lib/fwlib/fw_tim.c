@@ -1,4 +1,5 @@
-// Copyright 2021 IOsetting <iosetting(at)outlook.com>
+// Copyright 2021 IOsetting <iosetting(at)outlook.com
+// Copyright 2022-2023 Rong Bao (CSharperMantle) <baorong2005@126.com>>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,33 +67,4 @@ void TIM_Timer1_Config(HAL_State_t freq1t, TIM_TimerMode_t mode, uint16_t freque
         init = TIM_Timer0n1_CalculateInitValue(frequency, freq1t, 0xFF);
         TIM_Timer1_SetInitValue(init >> 8, init & 0xFF);
     }
-}
-
-int16_t _TIM_Timer234_InitValueCalculate(
-    uint16_t frequency, uint8_t prescaler, HAL_State_t freq1t)
-{
-    uint32_t value = SYS_GetSysClock();
-    if (!freq1t)
-        value = value / 12;
-    value = value / ((prescaler + 1) * frequency);
-
-    if (value > 0xFFFF)
-        return 0;
-    else
-        return 0xFFFF - value;
-}
-
-/**
- * Timer2,3,4 Configuration
- * 
- * 1. no interrupt priority
- * 2. frequency = SYSCLK / (TMxPS + 1) / (0xFFFF - TxH,TxL) / (1T? 1 : 12)
-*/
-
-void TIM_Timer2_Config(HAL_State_t freq1t, uint8_t prescaler, uint16_t frequency)
-{
-    uint16_t init = _TIM_Timer234_InitValueCalculate(frequency, prescaler, freq1t);
-    TIM_Timer2_Set1TMode(freq1t);
-    TIM_Timer2_SetPreScaler(prescaler);
-    TIM_Timer2_SetInitValue(init >> 8, init & 0xFF);
 }

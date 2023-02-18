@@ -1,4 +1,5 @@
 // Copyright 2021 IOsetting <iosetting(at)outlook.com>
+// Copyright 2022-2023 Rong Bao (CSharperMantle) <baorong2005@126.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +24,6 @@
 #include "fw_tim.h"
 #include "fw_uart.h"
 #include "fw_i2c.h"
-#include "fw_iap.h"
 
 #if (__CONF_MCU_TYPE == 2  )
 #include "fw_pca.h"

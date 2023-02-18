@@ -150,7 +150,7 @@ static unsigned char get_led_mask_by_q(float *vec4_q) small {
            && IS_IN_RANGE_EPS(vec3_out[1], 0.0f, 0.25f)
            && IS_IN_RANGE_EPS(vec3_out[2], 1.0f, 0.25f)) {
             final_mask |= 0x01u << i;
-            printf("#%d,%f,%f,%f\r\n", i, vec3_out[0], vec3_out[1], vec3_out[2]);
+            printf("#%d ON\t%f\t%f\t%f\r\n", i, vec3_out[0], vec3_out[1], vec3_out[2]);
         }
     }
 
@@ -170,10 +170,6 @@ void main(void) small {
     GPIO_P1_SetMode(GPIO_Pin_4, GPIO_Mode_InOut_OD);  /* SDA */
     GPIO_P1_SetMode(GPIO_Pin_5, GPIO_Mode_InOut_OD);  /* SCL */
     GPIO_SetPullUp(GPIO_Port_1, GPIO_Pin_4 | GPIO_Pin_5, HAL_State_ON);
-    GPIO_SetSwitchSpeed(GPIO_Port_1, GPIO_Pin_4 | GPIO_Pin_5, GPIO_SwitchSpeed_High);
-    GPIO_SetDriveCapability(GPIO_Port_1, GPIO_Pin_4 | GPIO_Pin_5, GPIO_DriveCapability_High);
-    GPIO_SetSchmittTrigger(GPIO_Port_1, GPIO_Pin_4 | GPIO_Pin_5, GPIO_SchmittTrigger_ON);
-    GPIO_SetDigitalInput(GPIO_Port_1, GPIO_Pin_4 | GPIO_Pin_5, HAL_State_ON);
 
     UART1_SwitchPort(UART1_AlterPort_P36_P37);
     UART1_24M_115200_Init();
@@ -220,7 +216,6 @@ void main(void) small {
         quat_f[1] = (float)quat_l[1] / Q30;
         quat_f[2] = (float)quat_l[2] / Q30;
         quat_f[3] = (float)quat_l[3] / Q30;
-        // printf("%f\t%f\t%f\t%f\r\n", quat_f[0], quat_f[1], quat_f[2], quat_f[3]);
         set_led(get_led_mask_by_q(quat_f));
         SYS_Delay(10);
     } while (1);

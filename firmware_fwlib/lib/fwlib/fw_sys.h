@@ -1,4 +1,5 @@
 // Copyright 2021 IOsetting <iosetting(at)outlook.com>
+// Copyright 2022-2023 Rong Bao (CSharperMantle) <baorong2005@126.com>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -161,8 +162,8 @@ typedef enum
                                         SFRX_OFF();                                 \
                                     } while(0)
 
-void SYS_Delay(uint16_t t);
-void SYS_DelayUs(uint16_t t);
-uint32_t SYS_GetSysClock(void);
+void SYS_Delay(uint16_t t) small;
+void SYS_DelayUs(uint16_t t) small;
+uint32_t SYS_GetSysClock(void) small;
 
 #endif
