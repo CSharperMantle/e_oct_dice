@@ -1,9 +1,7 @@
 #include <stdio.h>
-#include <math.h>
 #include "fwlib/fw_hal.h"
 #include "eml/inv_mpu.h"
 #include "eml/inv_mpu_dmp_motion_driver.h"
-#include "arhs/MahonyAHRS.h"
 
 #define HALF_SQRT2 (0.7071067811865f)
 #define Q30 (1073741824.0f)
