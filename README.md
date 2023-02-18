@@ -12,14 +12,14 @@ This project is divided into subdirectories listed below:
 
 ## Software requirements
 
-* **Keil uVision v5** to build firmware
-* **STC-ISP v6** to program the MCU
-* **LCEDA (嘉立创EDA)** to view, edit and prepare schematic and PCB designs
-* **PTC Creo 5** to view, edit and prepare physical designs
+* **Keil uVision 5** ([link](https://www.keil.com/product/)) to build firmware
+* **STC-ISP v6** ([link](https://stcai.com/gjrj)) to program the MCU
+* **LCEDA (嘉立创EDA)** ([link](https://lceda.cn/)) to view, edit and prepare schematic and PCB designs
+* **PTC Creo 5** ([link](https://www.ptc.com/en/products/creo)) to view, edit and prepare physical designs
 
 ## License
 
-### Project code: BSD 3-Clause
+### Firmware code: BSD 3-Clause
 
 ```plain
 Copyright (c) 2022-2023 Rong Bao (CSharperMantle) <baorong2005@126.com>.
@@ -64,5 +64,7 @@ You may also obtain a copy of the legal code of this license at [LICENSE-CC-BYSA
 ### [FwLib_STC8](https://github.com/IOsetting/FwLib_STC8)
 
 **Author:** IOsetting
+
 **Description:** A lite firmware library for STC8G/STC8H series MCU
+
 **License:** Apache 2.0 license
