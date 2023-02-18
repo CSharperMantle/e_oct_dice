@@ -63,8 +63,10 @@ You may also obtain a copy of the legal code of this license at [LICENSE-CC-BYSA
 
 ### [FwLib_STC8](https://github.com/IOsetting/FwLib_STC8)
 
-**Author:** IOsetting
+**Author:** @IOsetting ([link](https://github.com/IOsetting))
 
 **Description:** A lite firmware library for STC8G/STC8H series MCU
 
 **License:** Apache 2.0 license
+
+Adaptation and minor modifications have been made to this library to match specific need. These modifications have been appropriately attributed in respective files. 
