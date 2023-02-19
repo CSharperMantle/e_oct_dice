@@ -32,9 +32,6 @@
 #define MPU_CALIB_SAMPLES 256
 #define MPU_REFRESH_RATE_HZ 200
 
-#define THRESHOLD_GYRO_STABILITY 32
-#define THRESHOLD_QUAT_STABILITY 0.005f
-
 /* Array of initial face orientation vectors */
 __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
     {HALF_SQRT2, 0.0f, HALF_SQRT2},    /* PYR, X+ Z+ */
@@ -79,9 +76,9 @@ static void vec3_add(const float *vec3_x, const float *vec3_y, float *vec3_out) 
 }
 
 static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) small {
-    __IDATA float s_tmp_1 = 0.0f, s_tmp_2 = 0.0f;
-    __IDATA float *vec3_u = NULL;
-    __IDATA float vec3_tmp_1[3] = {0.0f, 0.0f, 0.0f}, vec3_tmp_2[3] = {0.0f, 0.0f, 0.0f};
+    __DATA float s_tmp_1 = 0.0f, s_tmp_2 = 0.0f;
+    __DATA float *vec3_u = NULL;
+    __DATA float vec3_tmp_1[3] = {0.0f, 0.0f, 0.0f}, vec3_tmp_2[3] = {0.0f, 0.0f, 0.0f};
 
     vec3_out[0] = vec3_out[1] = vec3_out[2] = 0.0f;
     
@@ -141,17 +138,17 @@ static void set_led(unsigned char leds) small {
     PIN_LED_WLD = leds & MASK_LED_WLD;
 }
 
-static unsigned char get_led_mask_by_q(float *vec4_q) small {
+static unsigned char get_led_mask_by_q(void) small {
     __IDATA float vec3_out[3] = {0.0f, 0.0f, 0.0f};
     __DATA unsigned char final_mask = 0, i;
 
     for (i = 0; i < 8; i++) {
-        rotate(ARR_VEC3_FACES_ORIENT[i], vec4_q, vec3_out);
+        rotate(ARR_VEC3_FACES_ORIENT[i], quat_f, vec3_out);
         if (IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
             && IS_IN_RANGE_EPS(vec3_out[1], 0.0f, 0.2f)
             && IS_IN_RANGE_EPS(vec3_out[2], 1.0f, 0.2f)) {
             final_mask |= 0x01u << i;
-            printf("#%d ON\t%f\t%f\t%f\r\n", (int)i, vec3_out[0], vec3_out[1], vec3_out[2]);
+            printf("%d\t%f\t%f\t%f\r\n", (int)i, vec3_out[0], vec3_out[1], vec3_out[2]);
         }
     }
 
@@ -159,7 +156,7 @@ static unsigned char get_led_mask_by_q(float *vec4_q) small {
 }
 
 void main(void) small {
-    __DATA unsigned int i;
+    __DATA int i;
 
     EXTI_Global_SetIntState(HAL_State_ON);
 
@@ -186,11 +183,16 @@ void main(void) small {
     mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
     mpu_set_gyro_fsr(1000);
     mpu_set_accel_fsr(8);
-    mpu_set_lpf(5);
+    mpu_set_lpf(42);
     mpu_configure_fifo(INV_XYZ_GYRO);
     mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
 
-    SYS_Delay(1000);
+    for (i = 0; i < 8; i++) {
+        set_led(1 << i);
+        SYS_Delay(100);
+    }
+    set_led(0);
+
     for (i = 0; i < MPU_CALIB_SAMPLES; i++) {
         refresh_mpu();
         gyro_bias_l[0] += (long)(gyro_s[0] - MPU_CALIB_GYRO_X_GOAL);
@@ -201,7 +203,13 @@ void main(void) small {
     gyro_bias_l[0] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[1] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[2] /= MPU_CALIB_SAMPLES;
-    printf("MPU GYRO CALIB BIAS:\t%d\t%d\t%d\r\n", (int)gyro_bias_l[0], (int)gyro_bias_l[1], (int)gyro_bias_l[2]);
+    printf("GYRO BIAS\t%d\t%d\t%d\r\n", (int)gyro_bias_l[0], (int)gyro_bias_l[1], (int)gyro_bias_l[2]);
+
+    for (i = 7; i >= 0; i--) {
+        set_led(1 << i);
+        SYS_Delay(100);
+    }
+    set_led(0);
     SYS_Delay(1000);
 
     dmp_load_motion_driver_firmware();
@@ -214,7 +222,7 @@ void main(void) small {
 
     do {
         refresh_dmp();
-        set_led(get_led_mask_by_q(quat_f));
+        set_led(get_led_mask_by_q());
         SYS_Delay(10);
     } while (1);
 }
