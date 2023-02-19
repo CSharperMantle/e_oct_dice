@@ -32,6 +32,9 @@
 #define MPU_CALIB_SAMPLES 256
 #define MPU_REFRESH_RATE_HZ 200
 
+#define THRESHOLD_GYRO_STABILITY 32
+#define THRESHOLD_QUAT_STABILITY 0.005f
+
 /* Array of initial face orientation vectors */
 __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
     {HALF_SQRT2, 0.0f, HALF_SQRT2},    /* PYR, X+ Z+ */
@@ -47,9 +50,7 @@ __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
 /* Raw readings */
 static __DATA short gyro_s[3] = {0};
 /* Computed orientation */
-static __DATA long quat_l[4] = {0};
-static __DATA float quat_f[4] = {0};
-static __BIT is_stable = 0;
+static __DATA float quat_f[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 /* Bias for gyro, to be added to final readings */
 static __IDATA long gyro_bias_l[3] = {0};
 
@@ -117,10 +118,16 @@ static void refresh_mpu(void) small {
 static void refresh_dmp(void) small {
     __DATA unsigned char more;
     __DATA short sensors_mpu;
+    __DATA long quat_l[4];
 
     do {
         dmp_read_fifo(gyro_s, NULL, quat_l, &sensors_mpu, &more);
     } while (more);
+
+    quat_f[0] = (float)quat_l[0] / Q30;
+    quat_f[1] = (float)quat_l[1] / Q30;
+    quat_f[2] = (float)quat_l[2] / Q30;
+    quat_f[3] = (float)quat_l[3] / Q30;
 }
 
 static void set_led(unsigned char leds) small {
@@ -140,9 +147,9 @@ static unsigned char get_led_mask_by_q(float *vec4_q) small {
 
     for (i = 0; i < 8; i++) {
         rotate(ARR_VEC3_FACES_ORIENT[i], vec4_q, vec3_out);
-        if (IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.25f)
-           && IS_IN_RANGE_EPS(vec3_out[1], 0.0f, 0.25f)
-           && IS_IN_RANGE_EPS(vec3_out[2], 1.0f, 0.25f)) {
+        if (IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
+            && IS_IN_RANGE_EPS(vec3_out[1], 0.0f, 0.2f)
+            && IS_IN_RANGE_EPS(vec3_out[2], 1.0f, 0.2f)) {
             final_mask |= 0x01u << i;
             printf("#%d ON\t%f\t%f\t%f\r\n", (int)i, vec3_out[0], vec3_out[1], vec3_out[2]);
         }
@@ -207,10 +214,6 @@ void main(void) small {
 
     do {
         refresh_dmp();
-        quat_f[0] = (float)quat_l[0] / Q30;
-        quat_f[1] = (float)quat_l[1] / Q30;
-        quat_f[2] = (float)quat_l[2] / Q30;
-        quat_f[3] = (float)quat_l[3] / Q30;
         set_led(get_led_mask_by_q(quat_f));
         SYS_Delay(10);
     } while (1);
