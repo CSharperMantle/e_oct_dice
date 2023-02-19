@@ -1,14 +1,18 @@
 # e_oct_dice
 
-This project is a fanwork, presenting a low-cost, open-source recreation of elemental octahedral dice in Genius Invokation TCG of Genshin Impact.
+A low-cost, open-source recreation of elemental octahedral dice in Genius Invokation TCG of Genshin Impact.
+
+**This project is currently a Work-in-Progress (WIP). All materials in this repository is subject to change.**
+
+> "Genshin Impact" is a trademark owned by COGNOSPHERE PTE. LTD. This project is a fanwork. Neither this project nor its authors have affiliations with COGNOSPHERE.
 
 ## Project structure
 
 This project is divided into subdirectories listed below:
 
-* `firmware_fwlib`: Keil C firmware project for onboard MCU
-* `hardware`: Schematic and PCB designs
-* `physical`: 3D solid shell designs
+* [`firmware_fwlib/`](firmware_fwlib/): Keil C firmware project for onboard MCU
+* [`hardware/`](hardware/): Schematic and PCB designs
+* [`physical/`](physical/): 3D solid shell designs
 
 ## Software requirements
 
@@ -69,4 +73,4 @@ You may also obtain a copy of the legal code of this license at [LICENSE-CC-BYSA
 
 **License:** Apache 2.0 license
 
-Adaptation and minor modifications have been made to this library to match specific need. These modifications have been appropriately attributed in respective files. 
+Adaptation and minor modifications have been made to this library to match project use cases. These modifications have been attributed in respective files. 
