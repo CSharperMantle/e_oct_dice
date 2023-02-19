@@ -67,11 +67,9 @@
 
 #if defined AK8975_SECONDARY || defined AK8963_SECONDARY
 #define AK89xx_SECONDARY
-#else
-/* #warning "No compass = less profit for Invensense. Lame." */
 #endif
 
-static int set_int_enable(unsigned char enable);
+static __BIT set_int_enable(__BIT enable);
 
 /* Hardware registers needed by driver. */
 struct gyro_reg_s {
@@ -198,34 +196,11 @@ struct chip_cfg_s {
 #endif
 };
 
-/* Information for self-test. */
-struct test_s {
-    unsigned long gyro_sens;
-    unsigned long accel_sens;
-    unsigned char reg_rate_div;
-    unsigned char reg_lpf;
-    unsigned char reg_gyro_fsr;
-    unsigned char reg_accel_fsr;
-    unsigned short wait_ms;
-    unsigned char packet_thresh;
-    float min_dps;
-    float max_dps;
-    float max_gyro_var;
-    float min_g;
-    float max_g;
-    float max_accel_var;
-#ifdef MPU6500
-    float max_g_offset;
-    unsigned short sample_wait_ms;
-#endif
-};
-
 /* Gyro driver state variables. */
 struct gyro_state_s {
     const struct gyro_reg_s *reg;
     const struct hw_s *hw;
     struct chip_cfg_s chip_cfg;
-    const struct test_s *test;
 };
 
 /* Filter configurations. */
@@ -423,26 +398,10 @@ __CODE const struct hw_s hw = {
     ,AK89xx_FSR
 #endif
 };
-__CODE const struct test_s test = {
-    32768/250,
-    32768/16,
-    0,    /* 1kHz. */
-    1,    /* 188Hz. */
-    0,    /* 250dps. */
-    0x18, /* 16g. */
-    50,
-    5,    /* 5% */
-    10.f,
-    105.f,
-    0.14f,
-    0.3f,
-    0.95f,
-    0.14f
-};
 static struct gyro_state_s st = {
     &reg,
     &hw,
-    { 0 }, &test
+    { 0 }
 };
 #elif defined MPU6500
 __CODE const struct gyro_reg_s reg = {
@@ -501,28 +460,10 @@ __CODE const struct hw_s hw = {
     ,AK89xx_FSR
 #endif
 };
-__CODE const struct test_s test = {
-    32768/250,
-    32768/2,  //FSR = +-2G = 16384 LSB/G
-    0,    /* 1kHz. */
-    2,    /* 92Hz low pass filter*/
-    0,    /* 250dps. */
-    0x0,  /* Accel FSR setting = 2g. */
-    200,   //200ms stabilization time
-    200,    /* 200 samples */
-    20.f,  //20 dps for Gyro Criteria C
-    60.f, //Must exceed 60 dps threshold for Gyro Criteria B
-    .5f, //Must exceed +50% variation for Gyro Criteria A
-    .225f, //Accel must exceed Min 225 mg for Criteria B
-    .675f, //Accel cannot exceed Max 675 mg for Criteria B
-    .5f,  //Accel must be within 50% variation for Criteria A
-    .5f,   //500 mg for Accel Criteria C
-    10    //10ms sample time wait
-};
 static struct gyro_state_s st = {
     &reg,
     &hw,
-    { 0 }, &test
+    { 0 }
 };
 #endif
 
@@ -543,7 +484,7 @@ static int setup_compass(void);
  *  @param[in]  enable      1 to enable interrupt.
  *  @return     0 if successful.
  */
-static int set_int_enable(unsigned char enable)
+static __BIT set_int_enable(__BIT enable)
 {
     unsigned char tmp;
 
@@ -565,24 +506,6 @@ static int set_int_enable(unsigned char enable)
             tmp = 0x00;
         i2c_write(st.hw->addr, st.reg->int_enable, 1, &tmp);
         st.chip_cfg.int_enable = tmp;
-    }
-    return 0;
-}
-
-/**
- *  @brief      Register dump for testing.
- *  @return     0 if successful.
- */
-__BIT mpu_reg_dump(void)
-{
-    unsigned char ii;
-    unsigned char data_;
-
-    for (ii = 0; ii < st.hw->num_reg; ii++) {
-        if (ii == st.reg->fifo_r_w || ii == st.reg->mem_r_w)
-            continue;
-        i2c_read(st.hw->addr, ii, 1, &data_);
-        
     }
     return 0;
 }
@@ -854,7 +777,8 @@ __BIT mpu_get_temperature(long *data_)
  *  @param[in]  accel_bias  returned structure with the accel bias
  *  @return     0 if successful.
  */
-__BIT mpu_read_6500_accel_bias(long *accel_bias) {
+__BIT mpu_read_6500_accel_bias(long *accel_bias)
+{
 	unsigned char data_[6];
 	i2c_read(st.hw->addr, 0x77, 2, &data_[0]);
 	i2c_read(st.hw->addr, 0x7A, 2, &data_[2]);
@@ -865,26 +789,8 @@ __BIT mpu_read_6500_accel_bias(long *accel_bias) {
 	return 0;
 }
 
-/**
- *  @brief      Read biases to the accel bias 6050 registers.
- *  This function reads from the MPU6050 accel offset cancellations registers.
- *  The format are G in +-8G format. The register is initialized with OTP 
- *  factory trim values.
- *  @param[in]  accel_bias  returned structure with the accel bias
- *  @return     0 if successful.
- */
-__BIT mpu_read_6050_accel_bias(long *accel_bias) {
-	unsigned char data_[6];
-	i2c_read(st.hw->addr, 0x06, 2, &data_[0]);
-	i2c_read(st.hw->addr, 0x08, 2, &data_[2]);
-	i2c_read(st.hw->addr, 0x0A, 2, &data_[4]);
-	accel_bias[0] = ((long)data_[0]<<8) | data_[1];
-	accel_bias[1] = ((long)data_[2]<<8) | data_[3];
-	accel_bias[2] = ((long)data_[4]<<8) | data_[5];
-	return 0;
-}
-
-__BIT mpu_read_6500_gyro_bias(long *gyro_bias) {
+__BIT mpu_read_6500_gyro_bias(long *gyro_bias)
+{
 	unsigned char data_[6];
 	i2c_read(st.hw->addr, 0x13, 2, &data_[0]);
 	i2c_read(st.hw->addr, 0x15, 2, &data_[2]);
@@ -930,40 +836,6 @@ __BIT mpu_set_gyro_bias_reg(const long *gyro_bias)
 }
 
 /**
- *  @brief      Push biases to the accel bias 6050 registers.
- *  This function expects biases relative to the current sensor output, and
- *  these biases will be added to the factory-supplied values. Bias inputs are LSB
- *  in +-8G format.
- *  @param[in]  accel_bias  New biases.
- *  @return     0 if successful.
- */
-__BIT mpu_set_accel_bias_6050_reg(const long *accel_bias)
-{
-    unsigned char data_[6] = {0, 0, 0, 0, 0, 0};
-    long accel_reg_bias[3] = {0, 0, 0};
-
-    if(mpu_read_6050_accel_bias(accel_reg_bias))
-    	return 1;
-
-    accel_reg_bias[0] -= (accel_bias[0] & ~1);
-    accel_reg_bias[1] -= (accel_bias[1] & ~1);
-    accel_reg_bias[2] -= (accel_bias[2] & ~1);
-
-    data_[0] = (accel_reg_bias[0] >> 8) & 0xff;
-    data_[1] = (accel_reg_bias[0]) & 0xff;
-    data_[2] = (accel_reg_bias[1] >> 8) & 0xff;
-    data_[3] = (accel_reg_bias[1]) & 0xff;
-    data_[4] = (accel_reg_bias[2] >> 8) & 0xff;
-    data_[5] = (accel_reg_bias[2]) & 0xff;
-
-    i2c_write(st.hw->addr, 0x06, 2, &data_[0]);
-    i2c_write(st.hw->addr, 0x08, 2, &data_[2]);
-    i2c_write(st.hw->addr, 0x0A, 2, &data_[4]);
-
-    return 0;
-}
-
-/**
  *  @brief      Push biases to the accel bias 6500 registers.
  *  This function expects biases relative to the current sensor output, and
  *  these biases will be added to the factory-supplied values. Bias inputs are LSB
@@ -971,7 +843,8 @@ __BIT mpu_set_accel_bias_6050_reg(const long *accel_bias)
  *  @param[in]  accel_bias  New biases.
  *  @return     0 if successful.
  */
-__BIT mpu_set_accel_bias_6500_reg(const long *accel_bias) {
+__BIT mpu_set_accel_bias_6500_reg(const long *accel_bias)
+{
     unsigned char data_[6] = {0, 0, 0, 0, 0, 0};
     long accel_reg_bias[3] = {0, 0, 0};
 

@@ -437,7 +437,7 @@ struct dmp_s {
     unsigned char packet_length;
 };
 
-static struct dmp_s dmp = { 0, 0, 0, 0 };
+static __IDATA struct dmp_s dmp = { 0, 0, 0, 0 };
 
 /**
  *  @brief  Load the DMP with this image.
@@ -446,58 +446,6 @@ static struct dmp_s dmp = { 0, 0, 0, 0 };
 __BIT dmp_load_motion_driver_firmware(void)
 {
     return mpu_load_firmware(DMP_CODE_SIZE, DMP_FIRMWARE, DMP_CODE_START_ADDRESS, DMP_SAMPLE_RATE);
-}
-
-/**
- *  @brief      Push gyro and accel orientation to the DMP.
- *  The orientation is represented here as the output of
- *  @e inv_orientation_matrix_to_scalar.
- *  @param[in]  orient  Gyro and accel orientation in body frame.
- *  @return     0 if successful.
- */
-__BIT dmp_set_orientation(unsigned short orient)
-{
-    __CODE const unsigned char gyro_axes[3] = {DINA4C, DINACD, DINA6C};
-    __CODE const unsigned char accel_axes[3] = {DINA0C, DINAC9, DINA2C};
-    __CODE const unsigned char gyro_sign[3] = {DINA36, DINA56, DINA76};
-    __CODE const unsigned char accel_sign[3] = {DINA26, DINA46, DINA66};
-    unsigned char gyro_regs[3], accel_regs[3];
-
-    gyro_regs[0] = gyro_axes[orient & 3];
-    gyro_regs[1] = gyro_axes[(orient >> 3) & 3];
-    gyro_regs[2] = gyro_axes[(orient >> 6) & 3];
-    accel_regs[0] = accel_axes[orient & 3];
-    accel_regs[1] = accel_axes[(orient >> 3) & 3];
-    accel_regs[2] = accel_axes[(orient >> 6) & 3];
-
-    /* Chip-to-body, axes only. */
-    if (mpu_write_mem(FCFG_1, 3, gyro_regs))
-        return 1;
-    if (mpu_write_mem(FCFG_2, 3, accel_regs))
-        return 1;
-
-    memcpy(gyro_regs, gyro_sign, 3);
-    memcpy(accel_regs, accel_sign, 3);
-    if (orient & 4) {
-        gyro_regs[0] |= 1;
-        accel_regs[0] |= 1;
-    }
-    if (orient & 0x20) {
-        gyro_regs[1] |= 1;
-        accel_regs[1] |= 1;
-    }
-    if (orient & 0x100) {
-        gyro_regs[2] |= 1;
-        accel_regs[2] |= 1;
-    }
-
-    /* Chip-to-body, sign only. */
-    if (mpu_write_mem(FCFG_3, 3, gyro_regs))
-        return 1;
-    if (mpu_write_mem(FCFG_7, 3, accel_regs))
-        return 1;
-    dmp.orient = orient;
-    return 0;
 }
 
 /**

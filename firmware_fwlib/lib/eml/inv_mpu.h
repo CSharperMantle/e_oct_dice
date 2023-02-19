@@ -96,8 +96,6 @@ __BIT mpu_set_sensors(unsigned char sensors);
 __BIT mpu_read_6500_accel_bias(long *accel_bias);
 __BIT mpu_set_gyro_bias_reg(const long * gyro_bias);
 __BIT mpu_set_accel_bias_6500_reg(const long *accel_bias);
-__BIT mpu_read_6050_accel_bias(long *accel_bias);
-__BIT mpu_set_accel_bias_6050_reg(const long *accel_bias);
 
 /* Data getter/setter APIs */
 __BIT mpu_get_gyro_reg(short *data_);
@@ -117,7 +115,6 @@ __BIT mpu_read_mem(unsigned short mem_addr, unsigned short length,
 __BIT mpu_load_firmware(unsigned short length, const unsigned char *firmware,
     unsigned short start_addr, unsigned short sample_rate);
 
-__BIT mpu_reg_dump(void);
 __BIT mpu_read_reg(unsigned char reg, unsigned char *data_);
 __BIT mpu_register_tap_cb(void (*func)(unsigned char, unsigned char));
 

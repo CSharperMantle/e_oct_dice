@@ -38,7 +38,6 @@ __BIT dmp_get_fifo_rate(unsigned short *rate);
 __BIT dmp_enable_feature(unsigned short mask);
 __BIT dmp_get_enabled_features(unsigned short *mask);
 __BIT dmp_set_interrupt_mode(unsigned char mode);
-__BIT dmp_set_orientation(unsigned short orient);
 __BIT dmp_set_gyro_bias(long *bias);
 __BIT dmp_set_accel_bias(long *bias);
 

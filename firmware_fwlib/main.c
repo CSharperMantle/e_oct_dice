@@ -44,16 +44,12 @@ __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
     {0.0f, -HALF_SQRT2, -HALF_SQRT2},  /* WLD, Y- Z- */
 };
 
-/* Accumulator */
-static __DATA int i = 0;
-/* Raw gyro readings */
-static __DATA short gyro_s[3] = {0}, accel_s[3] = {0};
-/* MPU FIFO status */
-static __DATA unsigned char more = 0;
-static __DATA short sensors_mpu = 0;
+/* Raw readings */
+static __DATA short gyro_s[3] = {0};
 /* Computed orientation */
 static __DATA long quat_l[4] = {0};
 static __DATA float quat_f[4] = {0};
+static __BIT is_stable = 0;
 /* Bias for gyro, to be added to final readings */
 static __IDATA long gyro_bias_l[3] = {0};
 
@@ -111,12 +107,17 @@ static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) sm
 }
 
 static void refresh_mpu(void) small {
+    __DATA unsigned char more, sensors_mpu;
+
     do {
         mpu_read_fifo(gyro_s, NULL, &sensors_mpu, &more);
     } while (more);
 }
 
 static void refresh_dmp(void) small {
+    __DATA unsigned char more;
+    __DATA short sensors_mpu;
+
     do {
         dmp_read_fifo(gyro_s, NULL, quat_l, &sensors_mpu, &more);
     } while (more);
@@ -133,14 +134,9 @@ static void set_led(unsigned char leds) small {
     PIN_LED_WLD = leds & MASK_LED_WLD;
 }
 
-/*
- * Determine which face up from computed quaternion.
- *
- * Results is returned.
- */
 static unsigned char get_led_mask_by_q(float *vec4_q) small {
-    __IDATA float vec3_out[3];
-    __DATA unsigned char final_mask = 0;
+    __IDATA float vec3_out[3] = {0.0f, 0.0f, 0.0f};
+    __DATA unsigned char final_mask = 0, i;
 
     for (i = 0; i < 8; i++) {
         rotate(ARR_VEC3_FACES_ORIENT[i], vec4_q, vec3_out);
@@ -148,7 +144,7 @@ static unsigned char get_led_mask_by_q(float *vec4_q) small {
            && IS_IN_RANGE_EPS(vec3_out[1], 0.0f, 0.25f)
            && IS_IN_RANGE_EPS(vec3_out[2], 1.0f, 0.25f)) {
             final_mask |= 0x01u << i;
-            printf("#%d ON\t%f\t%f\t%f\r\n", i, vec3_out[0], vec3_out[1], vec3_out[2]);
+            printf("#%d ON\t%f\t%f\t%f\r\n", (int)i, vec3_out[0], vec3_out[1], vec3_out[2]);
         }
     }
 
@@ -156,6 +152,8 @@ static unsigned char get_led_mask_by_q(float *vec4_q) small {
 }
 
 void main(void) small {
+    __DATA unsigned int i;
+
     EXTI_Global_SetIntState(HAL_State_ON);
 
     /* LEDs */
@@ -186,14 +184,13 @@ void main(void) small {
     mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
 
     SYS_Delay(1000);
-    i = MPU_CALIB_SAMPLES;
-    do {
+    for (i = 0; i < MPU_CALIB_SAMPLES; i++) {
         refresh_mpu();
         gyro_bias_l[0] += (long)(gyro_s[0] - MPU_CALIB_GYRO_X_GOAL);
         gyro_bias_l[1] += (long)(gyro_s[1] - MPU_CALIB_GYRO_Y_GOAL);
         gyro_bias_l[2] += (long)(gyro_s[2] - MPU_CALIB_GYRO_Z_GOAL);
         SYS_Delay(10);
-    } while (--i);
+    }
     gyro_bias_l[0] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[1] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[2] /= MPU_CALIB_SAMPLES;
