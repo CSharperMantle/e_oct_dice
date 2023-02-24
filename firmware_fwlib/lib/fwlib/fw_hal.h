@@ -25,8 +25,4 @@
 #include "fw_uart.h"
 #include "fw_i2c.h"
 
-#if (__CONF_MCU_TYPE == 2  )
-#include "fw_pca.h"
-#endif
-
 #endif

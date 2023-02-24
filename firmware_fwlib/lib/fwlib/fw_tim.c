@@ -16,6 +16,8 @@
 #include "fw_tim.h"
 #include "fw_sys.h"
 
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
+
 /**
  * Calculate the initial value of Timer0 & Timer1 counter
  * - If the frequency is too high, it will return the value of `limit`, so the timer
@@ -68,3 +70,5 @@ void TIM_Timer1_Config(HAL_State_t freq1t, TIM_TimerMode_t mode, uint16_t freque
         TIM_Timer1_SetInitValue(init >> 8, init & 0xFF);
     }
 }
+
+#endif /* 0 */

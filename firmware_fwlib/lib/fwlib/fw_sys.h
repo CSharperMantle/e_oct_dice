@@ -163,7 +163,6 @@ typedef enum
                                     } while(0)
 
 void SYS_Delay(uint16_t t) small;
-void SYS_DelayUs(uint16_t t) small;
 uint32_t SYS_GetSysClock(void) small;
 
 #endif

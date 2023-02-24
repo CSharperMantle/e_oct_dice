@@ -39,7 +39,9 @@ __BIT dmp_enable_feature(unsigned short mask);
 __BIT dmp_get_enabled_features(unsigned short *mask);
 __BIT dmp_set_interrupt_mode(unsigned char mode);
 __BIT dmp_set_gyro_bias(long *bias);
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
 __BIT dmp_set_accel_bias(long *bias);
+#endif
 
 /* LP quaternion functions. */
 __BIT dmp_enable_lp_quat(__BIT enable);

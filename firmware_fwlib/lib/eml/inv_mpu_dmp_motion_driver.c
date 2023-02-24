@@ -498,6 +498,9 @@ __BIT dmp_set_gyro_bias(long *bias)
     return mpu_write_mem(D_EXT_GYRO_BIAS_Z, 4, regs);
 }
 
+
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
+
 /**
  *  @brief      Push accel biases to the DMP.
  *  These biases will be removed from the DMP 6-axis quaternion.
@@ -543,6 +546,8 @@ __BIT dmp_set_accel_bias(long *bias)
     regs[11] = (unsigned char)(accel_bias_body[2] & 0xFF);
     return mpu_write_mem(D_ACCEL_BIAS, 12, regs);
 }
+
+#endif /* 0 */
 
 /**
  *  @brief      Set DMP output rate.

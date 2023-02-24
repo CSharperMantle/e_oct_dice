@@ -60,8 +60,6 @@ __BIT mpu_set_bypass(unsigned char bypass_on);
 
 /* Configuration APIs */
 __BIT mpu_lp_accel_mode(unsigned short rate);
-__BIT mpu_lp_motion_interrupt(unsigned short thresh, unsigned char time,
-    unsigned char lpa_freq);
 __BIT mpu_set_int_level(unsigned char active_low);
 __BIT mpu_set_int_latched(unsigned char enable);
 
@@ -77,15 +75,11 @@ __BIT mpu_set_gyro_fsr(unsigned short fsr);
 __BIT mpu_get_accel_fsr(unsigned char *fsr);
 __BIT mpu_set_accel_fsr(unsigned char fsr);
 
-__BIT mpu_get_compass_fsr(unsigned short *fsr);
-
 __BIT mpu_get_gyro_sens(float *sens);
 __BIT mpu_get_accel_sens(unsigned short *sens);
 
 __BIT mpu_get_sample_rate(unsigned short *rate);
 __BIT mpu_set_sample_rate(unsigned short rate);
-__BIT mpu_get_compass_sample_rate(unsigned short *rate);
-__BIT mpu_set_compass_sample_rate(unsigned short rate);
 
 __BIT mpu_get_fifo_config(unsigned char *sensors);
 __BIT mpu_configure_fifo(unsigned char sensors);
@@ -98,11 +92,6 @@ __BIT mpu_set_gyro_bias_reg(const long * gyro_bias);
 __BIT mpu_set_accel_bias_6500_reg(const long *accel_bias);
 
 /* Data getter/setter APIs */
-__BIT mpu_get_gyro_reg(short *data_);
-__BIT mpu_get_accel_reg(short *data_);
-__BIT mpu_get_compass_reg(short *data_);
-__BIT mpu_get_temperature(long *data_);
-
 __BIT mpu_get_int_status(short *status);
 __BIT mpu_read_fifo(short *gyro, short *accel, unsigned char *sensors, unsigned char *more);
 __BIT mpu_read_fifo_stream(unsigned short length, unsigned char *data_, unsigned char *more);
@@ -112,11 +101,7 @@ __BIT mpu_write_mem(unsigned short mem_addr, unsigned short length,
     unsigned char *data_);
 __BIT mpu_read_mem(unsigned short mem_addr, unsigned short length,
     unsigned char *data_);
-__BIT mpu_load_firmware(unsigned short length, const unsigned char *firmware,
+__BIT mpu_load_firmware(unsigned short length, const unsigned char __CODE *firmware,
     unsigned short start_addr, unsigned short sample_rate);
 
-__BIT mpu_read_reg(unsigned char reg, unsigned char *data_);
-__BIT mpu_register_tap_cb(void (*func)(unsigned char, unsigned char));
-
 #endif  /* #ifndef _INV_MPU_H_ */
-

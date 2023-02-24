@@ -44,18 +44,11 @@ void SYS_Delay(uint16_t t) small
     } while (--t);
 }
 
-void SYS_DelayUs(uint16_t t) small
-{
-    uint8_t i;
-    do
-    {
-        i = ticks_us;
-        while (--i)
-            NOP();
-    } while (--t);
-}
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
 
 uint32_t SYS_GetSysClock(void) small
 {
     return ((uint32_t)__CONF_FOSC) / clkdiv;
 }
+
+#endif /* 0 */
