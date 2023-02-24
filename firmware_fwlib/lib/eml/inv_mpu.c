@@ -1775,6 +1775,23 @@ static int setup_compass(void)
 #endif
 
 /**
+ *  @brief      Read from a single register.
+ *  NOTE: The memory and FIFO read/write registers cannot be accessed.
+ *  @param[in]  reg     Register address.
+ *  @param[out] data_    Register data_.
+ *  @return     0 if successful.
+ */
+__BIT mpu_read_reg(unsigned char reg, unsigned char *data_)
+{
+    if (reg == st.reg->fifo_r_w || reg == st.reg->mem_r_w)
+        return 1;
+    if (reg >= st.hw->num_reg)
+        return 1;
+    i2c_read(st.hw->addr, reg, 1, data_);
+    return 0;
+}
+
+/**
  *  @}
  */
 

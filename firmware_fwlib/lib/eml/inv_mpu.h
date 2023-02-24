@@ -104,4 +104,6 @@ __BIT mpu_read_mem(unsigned short mem_addr, unsigned short length,
 __BIT mpu_load_firmware(unsigned short length, const unsigned char __CODE *firmware,
     unsigned short start_addr, unsigned short sample_rate);
 
+__BIT mpu_read_reg(unsigned char reg, unsigned char *data_);
+
 #endif  /* #ifndef _INV_MPU_H_ */

@@ -6,6 +6,8 @@
 #define HALF_SQRT2 (0.7071067811865f)
 #define Q30 (1073741824.0f)
 
+#if defined(E_OCT_DICE_DEV_STC8H8K64U)
+
 #define PIN_LED_PYR P00
 #define PIN_LED_HYD P01
 #define PIN_LED_ANE P02
@@ -14,6 +16,93 @@
 #define PIN_LED_CYR P05
 #define PIN_LED_GEO P06
 #define PIN_LED_WLD P07
+
+static void init_periph(void) small {
+    /* LEDs */
+    GPIO_P0_SetMode(GPIO_Pin_All, GPIO_Mode_Output_PP);
+    /* Serial */
+    GPIO_P3_SetMode(GPIO_Pin_6, GPIO_Mode_Input_HIP);
+    GPIO_P3_SetMode(GPIO_Pin_7, GPIO_Mode_Output_PP);
+    /* I2C */
+    GPIO_P1_SetMode(GPIO_Pin_4, GPIO_Mode_InOut_OD);  /* SDA */
+    GPIO_P1_SetMode(GPIO_Pin_5, GPIO_Mode_InOut_OD);  /* SCL */
+    GPIO_SetPullUp(GPIO_Port_1, GPIO_Pin_4 | GPIO_Pin_5, HAL_State_ON);
+
+    UART1_SwitchPort(UART1_AlterPort_P36_P37);
+    UART1_24M_115200_Init();
+
+    I2C_SetWorkMode(I2C_WorkMode_Master);
+    I2C_SetClockPrescaler(13U);
+    I2C_SetPort(I2C_AlterPort_P15_P14);
+    I2C_SetEnabled(HAL_State_ON);
+}
+
+#elif defined(E_OCT_DICE_REL_STC8H1K28)
+
+#define PIN_LED_PYR P24
+#define PIN_LED_HYD P25
+#define PIN_LED_ANE P26
+#define PIN_LED_ELE P27
+#define PIN_LED_DEN P20
+#define PIN_LED_CYR P21
+#define PIN_LED_GEO P22
+#define PIN_LED_WLD P23
+
+static void init_periph(void) small {
+    /* LEDs */
+    GPIO_P2_SetMode(GPIO_Pin_All, GPIO_Mode_Output_PP);
+    /* Serial */
+    GPIO_P3_SetMode(GPIO_Pin_0, GPIO_Mode_Input_HIP);
+    GPIO_P3_SetMode(GPIO_Pin_1, GPIO_Mode_Output_PP);
+    /* I2C */
+    GPIO_P1_SetMode(GPIO_Pin_4, GPIO_Mode_InOut_OD);  /* SDA */
+    GPIO_P1_SetMode(GPIO_Pin_5, GPIO_Mode_InOut_OD);  /* SCL */
+    GPIO_SetPullUp(GPIO_Port_1, GPIO_Pin_4 | GPIO_Pin_5, HAL_State_ON);
+
+    UART1_SwitchPort(UART1_AlterPort_P30_P31);
+    UART1_24M_115200_Init();
+
+    I2C_SetWorkMode(I2C_WorkMode_Master);
+    I2C_SetClockPrescaler(13U);
+    I2C_SetPort(I2C_AlterPort_P15_P14);
+    I2C_SetEnabled(HAL_State_ON);
+}
+
+#elif defined(E_OCT_DICE_REL_STC8G1K17)
+
+#define PIN_LED_PYR P10
+#define PIN_LED_HYD P13
+#define PIN_LED_ANE P12
+#define PIN_LED_ELE P11
+#define PIN_LED_DEN P33
+#define PIN_LED_CYR P34
+#define PIN_LED_GEO P35
+#define PIN_LED_WLD P36
+
+static void init_periph(void) small {
+    /* LEDs */
+    GPIO_P1_SetMode(GPIO_Pin_0|GPIO_Pin_1|GPIO_Pin_2|GPIO_Pin_3, GPIO_Mode_Output_PP);
+    GPIO_P3_SetMode(GPIO_Pin_3|GPIO_Pin_4|GPIO_Pin_5|GPIO_Pin_6, GPIO_Mode_Output_PP);
+    /* Serial */
+    GPIO_P3_SetMode(GPIO_Pin_0, GPIO_Mode_Input_HIP);
+    GPIO_P3_SetMode(GPIO_Pin_1, GPIO_Mode_Output_PP);
+    /* I2C */
+    GPIO_P1_SetMode(GPIO_Pin_4, GPIO_Mode_InOut_OD);  /* SDA */
+    GPIO_P1_SetMode(GPIO_Pin_5, GPIO_Mode_InOut_OD);  /* SCL */
+    GPIO_SetPullUp(GPIO_Port_1, GPIO_Pin_4 | GPIO_Pin_5, HAL_State_ON);
+
+    UART1_SwitchPort(UART1_AlterPort_P30_P31);
+    UART1_24M_115200_Init();
+
+    I2C_SetWorkMode(I2C_WorkMode_Master);
+    I2C_SetClockPrescaler(13U);
+    I2C_SetPort(I2C_AlterPort_P15_P14);
+    I2C_SetEnabled(HAL_State_ON);
+}
+
+#else
+#error Build type misconfigured.
+#endif
 
 #define MASK_LED_PYR B00000001
 #define MASK_LED_HYD B00000010
@@ -26,11 +115,19 @@
 
 #define IS_IN_RANGE_EPS(x, t, eps) (((x) > ((t) - (eps))) && ((x) < ((t) + (eps))))
 
+#define MPU_SIGNATURE_WHOAMI 0x70
+#define MPU_REG_WHOAMI 0x75
 #define MPU_CALIB_GYRO_X_GOAL 0
 #define MPU_CALIB_GYRO_Y_GOAL 0
 #define MPU_CALIB_GYRO_Z_GOAL 0
-#define MPU_CALIB_SAMPLES 256
+#define MPU_CALIB_SAMPLES 128
 #define MPU_REFRESH_RATE_HZ 200
+
+#define MSG_FMT_INFO_MPU_INIT_BEGIN "I\tIB\tMPU\r\n"
+#define MSG_FMT_INFO_MPU_INIT_END "I\tIE\tMPU\r\n"
+#define MSG_FMT_INFO_MPU_BIAS_CALIB_DONE "I\tD\tMPU\tBIAS\t%d\t%d\t%d\r\n"
+#define MSG_FMT_INFO_FACE_DETECTED "I\tF\t%d\t%f\t%f\t%f\r\n"
+#define MSG_FMT_ERR_MPU_WHOAMI_MISMATCH "E\tH\tMPU\tWHOAMI\t%d\t%d\r\n"
 
 /* Array of initial face orientation vectors */
 __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
@@ -148,36 +245,30 @@ static unsigned char get_led_mask_by_q(void) small {
             && IS_IN_RANGE_EPS(vec3_out[1], 0.0f, 0.2f)
             && IS_IN_RANGE_EPS(vec3_out[2], 1.0f, 0.2f)) {
             final_mask |= 0x01u << i;
-            printf("%d\t%f\t%f\t%f\r\n", (int)i, vec3_out[0], vec3_out[1], vec3_out[2]);
-        }
+        printf(MSG_FMT_INFO_FACE_DETECTED, (int)i, vec3_out[0], vec3_out[1], vec3_out[2]);
+    }
     }
 
     return final_mask;
 }
 
-void main(void) small {
-    __DATA int i;
+static void init_mpu(void) small {
+    __DATA int i = 0;
+    __DATA unsigned char who_am_i;
 
-    EXTI_Global_SetIntState(HAL_State_ON);
+    printf(MSG_FMT_INFO_MPU_INIT_BEGIN);
 
-    /* LEDs */
-    GPIO_P0_SetMode(GPIO_Pin_All, GPIO_Mode_Output_PP);
-    set_led(0);
-    /* Serial */
-    GPIO_P3_SetMode(GPIO_Pin_6, GPIO_Mode_Input_HIP);
-    GPIO_P3_SetMode(GPIO_Pin_7, GPIO_Mode_Output_PP);
-    /* I2C */
-    GPIO_P1_SetMode(GPIO_Pin_4, GPIO_Mode_InOut_OD);  /* SDA */
-    GPIO_P1_SetMode(GPIO_Pin_5, GPIO_Mode_InOut_OD);  /* SCL */
-    GPIO_SetPullUp(GPIO_Port_1, GPIO_Pin_4 | GPIO_Pin_5, HAL_State_ON);
-
-    UART1_SwitchPort(UART1_AlterPort_P36_P37);
-    UART1_24M_115200_Init();
-
-    I2C_SetWorkMode(I2C_WorkMode_Master);
-    I2C_SetClockPrescaler(13U);
-    I2C_SetPort(I2C_AlterPort_P15_P14);
-    I2C_SetEnabled(HAL_State_ON);
+    /* who_am_i */
+    mpu_read_reg(MPU_REG_WHOAMI, &who_am_i);
+    if (who_am_i != MPU_SIGNATURE_WHOAMI) {
+        printf(MSG_FMT_ERR_MPU_WHOAMI_MISMATCH, (int)who_am_i, (int)MPU_SIGNATURE_WHOAMI);
+        while (1) {
+            set_led(MASK_LED_PYR);
+            SYS_Delay(1000);
+            set_led(0);
+            SYS_Delay(1000);
+        }
+    }
 
     mpu_init(NULL);
     mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
@@ -189,7 +280,7 @@ void main(void) small {
 
     for (i = 0; i < 8; i++) {
         set_led(1 << i);
-        SYS_Delay(100);
+        SYS_Delay(250);
     }
     set_led(0);
 
@@ -203,14 +294,14 @@ void main(void) small {
     gyro_bias_l[0] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[1] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[2] /= MPU_CALIB_SAMPLES;
-    printf("GYRO BIAS\t%d\t%d\t%d\r\n", (int)gyro_bias_l[0], (int)gyro_bias_l[1], (int)gyro_bias_l[2]);
+    printf(MSG_FMT_INFO_MPU_BIAS_CALIB_DONE, (int)gyro_bias_l[0], (int)gyro_bias_l[1], (int)gyro_bias_l[2]);
 
     for (i = 7; i >= 0; i--) {
         set_led(1 << i);
-        SYS_Delay(100);
+        SYS_Delay(250);
     }
     set_led(0);
-    SYS_Delay(1000);
+    SYS_Delay(100);
 
     dmp_load_motion_driver_firmware();
     dmp_set_fifo_rate(MPU_REFRESH_RATE_HZ);
@@ -219,6 +310,19 @@ void main(void) small {
     dmp_set_gyro_bias(gyro_bias_l);
     dmp_enable_feature(DMP_FEATURE_SEND_RAW_GYRO | DMP_FEATURE_6X_LP_QUAT);
     SYS_Delay(100);
+
+    printf(MSG_FMT_INFO_MPU_INIT_END);
+}
+
+void main(void) small {
+    EXTI_Global_SetIntState(HAL_State_ON);
+
+    init_periph();
+    set_led(0);
+
+    SYS_Delay(1000);
+
+    init_mpu();
 
     do {
         refresh_dmp();
