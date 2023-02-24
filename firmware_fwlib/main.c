@@ -270,7 +270,7 @@ static void init_mpu(void) small {
         }
     }
 
-    mpu_init(NULL);
+    mpu_init();
     mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL);
     mpu_set_gyro_fsr(1000);
     mpu_set_accel_fsr(8);

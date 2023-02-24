@@ -27,7 +27,6 @@
 #define i2c_write(addr, reg, len, data_) I2C_Write(addr, reg, data_, len)
 #define i2c_read(addr, reg, len, data_) I2C_Read(addr, reg, data_, len)
 #define delay_ms(ms)            SYS_Delay(ms)
-#define reg_int_cb(param)       (0)
 #define min(a, b)               (((a) < (b)) ? (a) : (b))
 
 #if !defined MPU6050 && !defined MPU9150 && !defined MPU6500 && !defined MPU9250
@@ -520,10 +519,9 @@ static __BIT set_int_enable(__BIT enable)
  *  Clock source: Gyro PLL\n
  *  FIFO: Disabled.\n
  *  Data ready interrupt: Disabled, active low, unlatched.
- *  @param[in]  int_param   Platform-specific parameters to interrupt API.
  *  @return     0 if successful.
  */
-__BIT mpu_init(struct int_param_s *int_param)
+__BIT mpu_init(void)
 {
     unsigned char data_[6];
 
@@ -579,9 +577,6 @@ __BIT mpu_init(struct int_param_s *int_param)
         return 1;
     if (mpu_configure_fifo(0))
         return 1;
-
-    if (int_param)
-        reg_int_cb(int_param);
 
 #ifdef AK89xx_SECONDARY
     setup_compass();
@@ -694,6 +689,8 @@ __BIT mpu_lp_accel_mode(unsigned short rate)
     return 0;
 }
 
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
+
 /**
  *  @brief      Read biases to the accel bias 6500 registers.
  *  This function reads from the MPU6500 accel offset cancellations registers.
@@ -713,6 +710,8 @@ __BIT mpu_read_6500_accel_bias(long *accel_bias)
 	accel_bias[2] = ((long)data_[4]<<8) | data_[5];
 	return 0;
 }
+
+#endif /* 0 */
 
 __BIT mpu_read_6500_gyro_bias(long *gyro_bias)
 {
@@ -760,6 +759,8 @@ __BIT mpu_set_gyro_bias_reg(const long *gyro_bias)
     return 0;
 }
 
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
+
 /**
  *  @brief      Push biases to the accel bias 6500 registers.
  *  This function expects biases relative to the current sensor output, and
@@ -794,6 +795,8 @@ __BIT mpu_set_accel_bias_6500_reg(const long *accel_bias)
 
     return 0;
 }
+
+#endif /* 0 */
 
 /**
  *  @brief  Reset FIFO read/write pointers.

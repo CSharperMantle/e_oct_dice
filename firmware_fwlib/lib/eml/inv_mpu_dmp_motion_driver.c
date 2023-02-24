@@ -421,14 +421,10 @@ DMP_FEATURE_SEND_CAL_GYRO)
 #define DMP_SAMPLE_RATE     (200)
 #define GYRO_SF             (46850825L * 200 / DMP_SAMPLE_RATE)
 
-#define FIFO_CORRUPTION_CHECK
-
-#ifdef FIFO_CORRUPTION_CHECK
 #define QUAT_ERROR_THRESH       (1L<<24)
 #define QUAT_MAG_SQ_NORMALIZED  (1L<<28)
 #define QUAT_MAG_SQ_MIN         (QUAT_MAG_SQ_NORMALIZED - QUAT_ERROR_THRESH)
 #define QUAT_MAG_SQ_MAX         (QUAT_MAG_SQ_NORMALIZED + QUAT_ERROR_THRESH)
-#endif
 
 struct dmp_s {
     unsigned short orient;
@@ -775,6 +771,8 @@ __BIT dmp_enable_6x_lp_quat(__BIT enable)
     return mpu_reset_fifo();
 }
 
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
+
 /**
  *  @brief      Specify when a DMP interrupt should occur.
  *  A DMP interrupt can be configured to trigger on either of the two
@@ -804,6 +802,8 @@ __BIT dmp_set_interrupt_mode(unsigned char mode)
         return 1;
     }
 }
+
+#endif /* 0 */
 
 /**
  *  @brief      Get one packet from the FIFO.
@@ -840,9 +840,8 @@ __BIT dmp_read_fifo(short *gyro, short *accel, long *quat, short *sensors, unsig
 
     /* Parse DMP packet. */
     if (dmp.feature_mask & (DMP_FEATURE_LP_QUAT | DMP_FEATURE_6X_LP_QUAT)) {
-#ifdef FIFO_CORRUPTION_CHECK
         long quat_q14[4], quat_mag_sq;
-#endif
+
         quat[0] = ((long)fifo_data[0] << 24) | ((long)fifo_data[1] << 16) |
         ((long)fifo_data[2] << 8) | fifo_data[3];
         quat[1] = ((long)fifo_data[4] << 24) | ((long)fifo_data[5] << 16) |
@@ -852,7 +851,6 @@ __BIT dmp_read_fifo(short *gyro, short *accel, long *quat, short *sensors, unsig
         quat[3] = ((long)fifo_data[12] << 24) | ((long)fifo_data[13] << 16) |
         ((long)fifo_data[14] << 8) | fifo_data[15];
         ii += 16;
-#ifdef FIFO_CORRUPTION_CHECK
         /* We can detect a corrupted FIFO by monitoring the quaternion data_ and
          * ensuring that the magnitude is always normalized to one. This
          * shouldn't happen in normal operation, but if an I2C error occurs,
@@ -875,7 +873,6 @@ __BIT dmp_read_fifo(short *gyro, short *accel, long *quat, short *sensors, unsig
             return 1;
         }
         sensors[0] |= INV_WXYZ_QUAT;
-#endif
     }
 
     if (dmp.feature_mask & DMP_FEATURE_SEND_RAW_ACCEL) {

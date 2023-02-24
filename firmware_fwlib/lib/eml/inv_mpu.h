@@ -32,12 +32,6 @@
 #define INV_XYZ_ACCEL   (0x08)
 #define INV_XYZ_COMPASS (0x01)
 
-struct int_param_s {
-    unsigned long pin;
-    void (*cb)(volatile void*);
-    void *arg;
-};
-
 #define MPU_INT_STATUS_DATA_READY       (0x0001)
 #define MPU_INT_STATUS_DMP              (0x0002)
 #define MPU_INT_STATUS_PLL_READY        (0x0004)
@@ -54,7 +48,7 @@ struct int_param_s {
 #define MPU_INT_STATUS_DMP_5            (0x2000)
 
 /* Set up APIs */
-__BIT mpu_init(struct int_param_s *int_param);
+__BIT mpu_init();
 __BIT mpu_init_slave(void);
 __BIT mpu_set_bypass(unsigned char bypass_on);
 
@@ -87,9 +81,14 @@ __BIT mpu_configure_fifo(unsigned char sensors);
 __BIT mpu_get_power_state(unsigned char *power_on);
 __BIT mpu_set_sensors(unsigned char sensors);
 
+
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
 __BIT mpu_read_6500_accel_bias(long *accel_bias);
+#endif /* 0 */
 __BIT mpu_set_gyro_bias_reg(const long * gyro_bias);
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
 __BIT mpu_set_accel_bias_6500_reg(const long *accel_bias);
+#endif /* 0 */
 
 /* Data getter/setter APIs */
 __BIT mpu_get_int_status(short *status);
