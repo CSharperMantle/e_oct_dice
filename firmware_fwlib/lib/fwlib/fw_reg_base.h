@@ -20,6 +20,7 @@
     #include <lint.h>
     # warning unrecognized compiler
     #define __BIT   bool
+    #define __DATA
     #define __IDATA
     #define __PDATA 
     #define __XDATA 
