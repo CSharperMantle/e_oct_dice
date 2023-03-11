@@ -849,97 +849,6 @@ __BIT mpu_reset_fifo(void)
 }
 
 /**
- *  @brief      Get the gyro full-scale range.
- *  @param[out] fsr Current full-scale range.
- *  @return     0 if successful.
- */
-__BIT mpu_get_gyro_fsr(unsigned short *fsr)
-{
-    switch (st.chip_cfg.gyro_fsr) {
-    case INV_FSR_250DPS:
-        fsr[0] = 250;
-        break;
-    case INV_FSR_500DPS:
-        fsr[0] = 500;
-        break;
-    case INV_FSR_1000DPS:
-        fsr[0] = 1000;
-        break;
-    case INV_FSR_2000DPS:
-        fsr[0] = 2000;
-        break;
-    default:
-        fsr[0] = 0;
-        break;
-    }
-    return 0;
-}
-
-/**
- *  @brief      Set the gyro full-scale range.
- *  @param[in]  fsr Desired full-scale range.
- *  @return     0 if successful.
- */
-__BIT mpu_set_gyro_fsr(unsigned short fsr)
-{
-    unsigned char data_;
-
-    if (!(st.chip_cfg.sensors))
-        return 1;
-
-    switch (fsr) {
-    case 250:
-        data_ = INV_FSR_250DPS << 3;
-        break;
-    case 500:
-        data_ = INV_FSR_500DPS << 3;
-        break;
-    case 1000:
-        data_ = INV_FSR_1000DPS << 3;
-        break;
-    case 2000:
-        data_ = INV_FSR_2000DPS << 3;
-        break;
-    default:
-        return 1;
-    }
-
-    if (st.chip_cfg.gyro_fsr == (data_ >> 3))
-        return 0;
-    i2c_write(st.hw->addr, st.reg->gyro_cfg, 1, &data_);
-    st.chip_cfg.gyro_fsr = data_ >> 3;
-    return 0;
-}
-
-/**
- *  @brief      Get the accel full-scale range.
- *  @param[out] fsr Current full-scale range.
- *  @return     0 if successful.
- */
-__BIT mpu_get_accel_fsr(unsigned char *fsr)
-{
-    switch (st.chip_cfg.accel_fsr) {
-    case INV_FSR_2G:
-        fsr[0] = 2;
-        break;
-    case INV_FSR_4G:
-        fsr[0] = 4;
-        break;
-    case INV_FSR_8G:
-        fsr[0] = 8;
-        break;
-    case INV_FSR_16G:
-        fsr[0] = 16;
-        break;
-    default:
-        return 1;
-    }
-    if (st.chip_cfg.accel_half)
-        fsr[0] <<= 1;
-    return 0;
-}
-
-/**
  *  @brief      Set the accel full-scale range.
  *  @param[in]  fsr Desired full-scale range.
  *  @return     0 if successful.
@@ -972,41 +881,6 @@ __BIT mpu_set_accel_fsr(unsigned char fsr)
         return 0;
     i2c_write(st.hw->addr, st.reg->accel_cfg, 1, &data_);
     st.chip_cfg.accel_fsr = data_ >> 3;
-    return 0;
-}
-
-/**
- *  @brief      Get the current DLPF setting.
- *  @param[out] lpf Current LPF setting.
- *  0 if successful.
- */
-__BIT mpu_get_lpf(unsigned short *lpf)
-{
-    switch (st.chip_cfg.lpf) {
-    case INV_FILTER_188HZ:
-        lpf[0] = 188;
-        break;
-    case INV_FILTER_98HZ:
-        lpf[0] = 98;
-        break;
-    case INV_FILTER_42HZ:
-        lpf[0] = 42;
-        break;
-    case INV_FILTER_20HZ:
-        lpf[0] = 20;
-        break;
-    case INV_FILTER_10HZ:
-        lpf[0] = 10;
-        break;
-    case INV_FILTER_5HZ:
-        lpf[0] = 5;
-        break;
-    case INV_FILTER_256HZ_NOLPF2:
-    case INV_FILTER_2100HZ_NOLPF:
-    default:
-        lpf[0] = 0;
-        break;
-    }
     return 0;
 }
 
@@ -1051,16 +925,38 @@ __BIT mpu_set_lpf(unsigned short lpf)
 }
 
 /**
- *  @brief      Get sampling rate.
- *  @param[out] rate    Current sampling rate (Hz).
+ *  @brief      Set the gyro full-scale range.
+ *  @param[in]  fsr Desired full-scale range.
  *  @return     0 if successful.
  */
-__BIT mpu_get_sample_rate(unsigned short *rate)
+__BIT mpu_set_gyro_fsr(unsigned short fsr)
 {
-    if (st.chip_cfg.dmp_on)
+    unsigned char data_;
+
+    if (!(st.chip_cfg.sensors))
         return 1;
-    else
-        rate[0] = st.chip_cfg.sample_rate;
+
+    switch (fsr) {
+    case 250:
+        data_ = INV_FSR_250DPS << 3;
+        break;
+    case 500:
+        data_ = INV_FSR_500DPS << 3;
+        break;
+    case 1000:
+        data_ = INV_FSR_1000DPS << 3;
+        break;
+    case 2000:
+        data_ = INV_FSR_2000DPS << 3;
+        break;
+    default:
+        return 1;
+    }
+
+    if (st.chip_cfg.gyro_fsr == (data_ >> 3))
+        return 0;
+    i2c_write(st.hw->addr, st.reg->gyro_cfg, 1, &data_);
+    st.chip_cfg.gyro_fsr = data_ >> 3;
     return 0;
 }
 
@@ -1109,6 +1005,97 @@ __BIT mpu_set_sample_rate(unsigned short rate)
         mpu_set_lpf(st.chip_cfg.sample_rate >> 1);
         return 0;
     }
+}
+
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
+/**
+ *  @brief      Get the current DLPF setting.
+ *  @param[out] lpf Current LPF setting.
+ *  0 if successful.
+ */
+__BIT mpu_get_lpf(unsigned short *lpf)
+{
+    switch (st.chip_cfg.lpf) {
+    case INV_FILTER_188HZ:
+        lpf[0] = 188;
+        break;
+    case INV_FILTER_98HZ:
+        lpf[0] = 98;
+        break;
+    case INV_FILTER_42HZ:
+        lpf[0] = 42;
+        break;
+    case INV_FILTER_20HZ:
+        lpf[0] = 20;
+        break;
+    case INV_FILTER_10HZ:
+        lpf[0] = 10;
+        break;
+    case INV_FILTER_5HZ:
+        lpf[0] = 5;
+        break;
+    case INV_FILTER_256HZ_NOLPF2:
+    case INV_FILTER_2100HZ_NOLPF:
+    default:
+        lpf[0] = 0;
+        break;
+    }
+    return 0;
+}
+
+/**
+ *  @brief      Get the gyro full-scale range.
+ *  @param[out] fsr Current full-scale range.
+ *  @return     0 if successful.
+ */
+__BIT mpu_get_gyro_fsr(unsigned short *fsr)
+{
+    switch (st.chip_cfg.gyro_fsr) {
+    case INV_FSR_250DPS:
+        fsr[0] = 250;
+        break;
+    case INV_FSR_500DPS:
+        fsr[0] = 500;
+        break;
+    case INV_FSR_1000DPS:
+        fsr[0] = 1000;
+        break;
+    case INV_FSR_2000DPS:
+        fsr[0] = 2000;
+        break;
+    default:
+        fsr[0] = 0;
+        break;
+    }
+    return 0;
+}
+
+/**
+ *  @brief      Get the accel full-scale range.
+ *  @param[out] fsr Current full-scale range.
+ *  @return     0 if successful.
+ */
+__BIT mpu_get_accel_fsr(unsigned char *fsr)
+{
+    switch (st.chip_cfg.accel_fsr) {
+    case INV_FSR_2G:
+        fsr[0] = 2;
+        break;
+    case INV_FSR_4G:
+        fsr[0] = 4;
+        break;
+    case INV_FSR_8G:
+        fsr[0] = 8;
+        break;
+    case INV_FSR_16G:
+        fsr[0] = 16;
+        break;
+    default:
+        return 1;
+    }
+    if (st.chip_cfg.accel_half)
+        fsr[0] <<= 1;
+    return 0;
 }
 
 /**
@@ -1166,6 +1153,20 @@ __BIT mpu_get_accel_sens(unsigned short *sens)
 }
 
 /**
+ *  @brief      Get sampling rate.
+ *  @param[out] rate    Current sampling rate (Hz).
+ *  @return     0 if successful.
+ */
+__BIT mpu_get_sample_rate(unsigned short *rate)
+{
+    if (st.chip_cfg.dmp_on)
+        return 1;
+    else
+        rate[0] = st.chip_cfg.sample_rate;
+    return 0;
+}
+
+/**
  *  @brief      Get current FIFO configuration.
  *  @e sensors can contain a combination of the following flags:
  *  \n INV_X_GYRO, INV_Y_GYRO, INV_Z_GYRO
@@ -1179,6 +1180,22 @@ __BIT mpu_get_fifo_config(unsigned char *sensors)
     sensors[0] = st.chip_cfg.fifo_enable;
     return 0;
 }
+
+/**
+ *  @brief      Get current power state.
+ *  @param[in]  power_on    1 if turned on, 0 if suspended.
+ *  @return     0 if successful.
+ */
+__BIT mpu_get_power_state(unsigned char *power_on)
+{
+    if (st.chip_cfg.sensors)
+        power_on[0] = 1;
+    else
+        power_on[0] = 0;
+    return 0;
+}
+
+#endif /* 0 */
 
 /**
  *  @brief      Select which sensors are pushed to FIFO.
@@ -1224,20 +1241,6 @@ __BIT mpu_configure_fifo(unsigned char sensors)
     }
 
     return result;
-}
-
-/**
- *  @brief      Get current power state.
- *  @param[in]  power_on    1 if turned on, 0 if suspended.
- *  @return     0 if successful.
- */
-__BIT mpu_get_power_state(unsigned char *power_on)
-{
-    if (st.chip_cfg.sensors)
-        power_on[0] = 1;
-    else
-        power_on[0] = 0;
-    return 0;
 }
 
 /**
@@ -1310,21 +1313,6 @@ __BIT mpu_set_sensors(unsigned char sensors)
     st.chip_cfg.sensors = sensors;
     st.chip_cfg.lp_accel_mode = 0;
     delay_ms(50);
-    return 0;
-}
-
-/**
- *  @brief      Read the MPU interrupt status registers.
- *  @param[out] status  Mask of interrupt bits.
- *  @return     0 if successful.
- */
-__BIT mpu_get_int_status(short *status)
-{
-    unsigned char tmp[2];
-    if (!st.chip_cfg.sensors)
-        return 1;
-    i2c_read(st.hw->addr, st.reg->dmp_int_status, 2, tmp);
-    status[0] = (tmp[0] << 8) | tmp[1];
     return 0;
 }
 
@@ -1674,17 +1662,6 @@ __BIT mpu_set_dmp_state(unsigned char enable)
         st.chip_cfg.dmp_on = 0;
         mpu_reset_fifo();
     }
-    return 0;
-}
-
-/**
- *  @brief      Get DMP state.
- *  @param[out] enabled 1 if enabled.
- *  @return     0 if successful.
- */
-__BIT mpu_get_dmp_state(unsigned char *enabled)
-{
-    enabled[0] = st.chip_cfg.dmp_on;
     return 0;
 }
 

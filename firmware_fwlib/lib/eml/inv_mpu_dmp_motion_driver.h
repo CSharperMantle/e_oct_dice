@@ -34,12 +34,7 @@
 /* Set up functions. */
 __BIT dmp_load_motion_driver_firmware(void);
 __BIT dmp_set_fifo_rate(unsigned short rate);
-__BIT dmp_get_fifo_rate(unsigned short *rate);
 __BIT dmp_enable_feature(unsigned short mask);
-__BIT dmp_get_enabled_features(unsigned short *mask);
-#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
-__BIT dmp_set_interrupt_mode(unsigned char mode);
-#endif /* 0 */
 __BIT dmp_set_gyro_bias(long *bias);
 #if 0 /* DISABLED FOR UNUSED FUNCTIONS */
 __BIT dmp_set_accel_bias(long *bias);

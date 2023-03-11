@@ -574,17 +574,6 @@ __BIT dmp_set_fifo_rate(unsigned short rate)
 }
 
 /**
- *  @brief      Get DMP output rate.
- *  @param[out] rate    Current fifo rate (Hz).
- *  @return     0 if successful.
- */
-__BIT dmp_get_fifo_rate(unsigned short *rate)
-{
-    rate[0] = dmp.fifo_rate;
-    return 0;
-}
-
-/**
  *  @brief      Enable DMP features.
  *  The following \#define's are used in the input mask:
  *  \n DMP_FEATURE_LP_QUAT
@@ -694,17 +683,6 @@ __BIT dmp_enable_feature(unsigned short mask)
 }
 
 /**
- *  @brief      Get list of currently enabled DMP features.
- *  @param[out] Mask of enabled features.
- *  @return     0 if successful.
- */
-__BIT dmp_get_enabled_features(unsigned short *mask)
-{
-    mask[0] = dmp.feature_mask;
-    return 0;
-}
-
-/**
  *  @brief      Calibrate the gyro data_ in the DMP.
  *  After eight seconds of no motion, the DMP will compute gyro biases and
  *  subtract them from the quaternion output. If @e dmp_enable_feature is
@@ -770,40 +748,6 @@ __BIT dmp_enable_6x_lp_quat(__BIT enable)
 
     return mpu_reset_fifo();
 }
-
-#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
-
-/**
- *  @brief      Specify when a DMP interrupt should occur.
- *  A DMP interrupt can be configured to trigger on either of the two
- *  conditions below:
- *  \n a. One FIFO period has elapsed (set by @e mpu_set_sample_rate).
- *  \n b. A tap event has been detected.
- *  @param[in]  mode    DMP_INT_GESTURE or DMP_INT_CONTINUOUS.
- *  @return     0 if successful.
- */
-__BIT dmp_set_interrupt_mode(unsigned char mode)
-{
-    __CODE const unsigned char regs_continuous[11] = {
-        0xd8, 0xb1, 0xb9, 0xf3, 0x8b, 0xa3, 0x91, 0xb6, 0x09, 0xb4, 0xd9
-    };
-    __CODE const unsigned char regs_gesture[11] = {
-        0xda, 0xb1, 0xb9, 0xf3, 0x8b, 0xa3, 0x91, 0xb6, 0xda, 0xb4, 0xda
-    };
-
-    switch (mode) {
-    case DMP_INT_CONTINUOUS:
-        return mpu_write_mem(CFG_FIFO_ON_EVENT, 11,
-            (unsigned char*)regs_continuous);
-    case DMP_INT_GESTURE:
-        return mpu_write_mem(CFG_FIFO_ON_EVENT, 11,
-            (unsigned char*)regs_gesture);
-    default:
-        return 1;
-    }
-}
-
-#endif /* 0 */
 
 /**
  *  @brief      Get one packet from the FIFO.

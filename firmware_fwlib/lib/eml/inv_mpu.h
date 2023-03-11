@@ -56,31 +56,24 @@ __BIT mpu_set_bypass(unsigned char bypass_on);
 __BIT mpu_lp_accel_mode(unsigned short rate);
 __BIT mpu_set_int_level(unsigned char active_low);
 __BIT mpu_set_int_latched(unsigned char enable);
-
 __BIT mpu_set_dmp_state(unsigned char enable);
-__BIT mpu_get_dmp_state(unsigned char *enabled);
-
-__BIT mpu_get_lpf(unsigned short *lpf);
 __BIT mpu_set_lpf(unsigned short lpf);
-
-__BIT mpu_get_gyro_fsr(unsigned short *fsr);
 __BIT mpu_set_gyro_fsr(unsigned short fsr);
-
-__BIT mpu_get_accel_fsr(unsigned char *fsr);
 __BIT mpu_set_accel_fsr(unsigned char fsr);
-
-__BIT mpu_get_gyro_sens(float *sens);
-__BIT mpu_get_accel_sens(unsigned short *sens);
-
-__BIT mpu_get_sample_rate(unsigned short *rate);
 __BIT mpu_set_sample_rate(unsigned short rate);
-
-__BIT mpu_get_fifo_config(unsigned char *sensors);
 __BIT mpu_configure_fifo(unsigned char sensors);
-
-__BIT mpu_get_power_state(unsigned char *power_on);
 __BIT mpu_set_sensors(unsigned char sensors);
 
+#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
+__BIT mpu_get_lpf(unsigned short *lpf);
+__BIT mpu_get_gyro_fsr(unsigned short *fsr);
+__BIT mpu_get_accel_fsr(unsigned char *fsr);
+__BIT mpu_get_gyro_sens(float *sens);
+__BIT mpu_get_accel_sens(unsigned short *sens);
+__BIT mpu_get_sample_rate(unsigned short *rate);
+__BIT mpu_get_fifo_config(unsigned char *sensors);
+__BIT mpu_get_power_state(unsigned char *power_on);
+#endif /* 0 */
 
 #if 0 /* DISABLED FOR UNUSED FUNCTIONS */
 __BIT mpu_read_6500_accel_bias(long *accel_bias);
@@ -91,7 +84,6 @@ __BIT mpu_set_accel_bias_6500_reg(const long *accel_bias);
 #endif /* 0 */
 
 /* Data getter/setter APIs */
-__BIT mpu_get_int_status(short *status);
 __BIT mpu_read_fifo(short *gyro, short *accel, unsigned char *sensors, unsigned char *more);
 __BIT mpu_read_fifo_stream(unsigned short length, unsigned char *data_, unsigned char *more);
 __BIT mpu_reset_fifo(void);

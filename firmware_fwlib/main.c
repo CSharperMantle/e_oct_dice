@@ -148,8 +148,8 @@ static __DATA float quat_f[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 /* Bias for gyro, to be added to final readings */
 static __IDATA long gyro_bias_l[3] = {0};
 
-static void vec3_dot(const float *vec3_x, const float *vec3_y, float *s_out) small {
-    *s_out = (vec3_x[0] * vec3_y[0]
+static float vec3_dot(const float *vec3_x, const float *vec3_y) small {
+    return (vec3_x[0] * vec3_y[0]
         + vec3_x[1] * vec3_y[1]
         + vec3_x[2] * vec3_y[2]);
 }
@@ -173,21 +173,21 @@ static void vec3_add(const float *vec3_x, const float *vec3_y, float *vec3_out) 
 }
 
 static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) small {
-    __DATA float s_tmp_1 = 0.0f, s_tmp_2 = 0.0f;
-    __DATA float *vec3_u = NULL;
-    __DATA float vec3_tmp_1[3] = {0.0f, 0.0f, 0.0f}, vec3_tmp_2[3] = {0.0f, 0.0f, 0.0f};
+    float s_tmp_1 = 0.0f, s_tmp_2 = 0.0f;
+    float *vec3_u = NULL;
+    float vec3_tmp_1[3] = {0.0f, 0.0f, 0.0f}, vec3_tmp_2[3] = {0.0f, 0.0f, 0.0f};
 
     vec3_out[0] = vec3_out[1] = vec3_out[2] = 0.0f;
     
     vec3_u = &vec4_q[1];
 
-    vec3_dot(vec3_u, vec3_v, &s_tmp_1);
+    s_tmp_1 = vec3_dot(vec3_u, vec3_v);
     s_tmp_1 *= 2.0f;
     vec3_mul(vec3_u, s_tmp_1, vec3_tmp_1);
 
     s_tmp_1 = vec4_q[0];
 
-    vec3_dot(vec3_u, vec3_u, &s_tmp_2);
+    s_tmp_2 = vec3_dot(vec3_u, vec3_u);
     s_tmp_2 = -(s_tmp_2);
     s_tmp_2 += s_tmp_1 * s_tmp_1;
     vec3_mul(vec3_v, s_tmp_2, vec3_tmp_2);
@@ -202,7 +202,7 @@ static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) sm
 }
 
 static void refresh_mpu(void) small {
-    __DATA unsigned char more, sensors_mpu;
+    unsigned char more, sensors_mpu;
 
     do {
         mpu_read_fifo(gyro_s, NULL, &sensors_mpu, &more);
@@ -210,9 +210,9 @@ static void refresh_mpu(void) small {
 }
 
 static void refresh_dmp(void) small {
-    __DATA unsigned char more;
-    __DATA short sensors_mpu;
-    __DATA long quat_l[4];
+    unsigned char more;
+    short sensors_mpu;
+    long quat_l[4];
 
     do {
         dmp_read_fifo(gyro_s, NULL, quat_l, &sensors_mpu, &more);
@@ -236,8 +236,8 @@ static void set_led(unsigned char leds) small {
 }
 
 static unsigned char get_led_mask_by_q(void) small {
-    __IDATA float vec3_out[3] = {0.0f, 0.0f, 0.0f};
-    __DATA unsigned char final_mask = 0, i;
+    float vec3_out[3];
+    unsigned char final_mask = 0, i;
 
     for (i = 0; i < 8; i++) {
         rotate(ARR_VEC3_FACES_ORIENT[i], quat_f, vec3_out);
@@ -253,8 +253,7 @@ static unsigned char get_led_mask_by_q(void) small {
 }
 
 static void init_mpu(void) small {
-    __DATA int i = 0;
-    __DATA unsigned char who_am_i;
+    unsigned char i, who_am_i;
 
     printf(MSG_FMT_INFO_MPU_INIT_BEGIN);
 
@@ -279,7 +278,7 @@ static void init_mpu(void) small {
     mpu_set_sample_rate(MPU_REFRESH_RATE_HZ);
 
     for (i = 0; i < 8; i++) {
-        set_led(1 << i);
+        set_led(0x01u << i);
         SYS_Delay(250);
     }
     set_led(0);
@@ -296,8 +295,8 @@ static void init_mpu(void) small {
     gyro_bias_l[2] /= MPU_CALIB_SAMPLES;
     printf(MSG_FMT_INFO_MPU_BIAS_CALIB_DONE, (int)gyro_bias_l[0], (int)gyro_bias_l[1], (int)gyro_bias_l[2]);
 
-    for (i = 7; i >= 0; i--) {
-        set_led(1 << i);
+    for (i = 0; i < 8; i++) {
+        set_led(0x80u >> i);
         SYS_Delay(250);
     }
     set_led(0);
@@ -319,9 +318,7 @@ void main(void) small {
 
     init_periph();
     set_led(0);
-
     SYS_Delay(1000);
-
     init_mpu();
 
     do {
