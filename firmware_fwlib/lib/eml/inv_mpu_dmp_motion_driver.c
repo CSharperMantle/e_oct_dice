@@ -23,8 +23,6 @@
 #include "dmpmap.h"
 #include "fwlib/fw_hal.h"
 
-#define delay_ms(ms)    SYS_Delay(ms)
-
 /* These defines are copied from dmpDefaultMPU6050.c in the general MPL
  * releases. These defines may change for each DMP image, so be sure to modify
  * these values when switching to a new image.

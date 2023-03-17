@@ -201,6 +201,19 @@ static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) sm
     vec3_add(vec3_tmp_1, vec3_tmp_2, vec3_out);
 }
 
+static void sleep_10ms_pd(unsigned char count) small {
+    do {
+        RCC_SetPowerDownWakeupTimerCountdown(0x18);
+        RCC_SetPowerDownWakeupTimerState(HAL_State_ON);
+        RCC_SetPowerDownMode(HAL_State_ON);
+        NOP();
+        NOP();
+        NOP();
+        NOP();
+        RCC_SetPowerDownWakeupTimerState(HAL_State_OFF);
+    } while (--count);
+}
+
 static void refresh_mpu(void) small {
     unsigned char more, sensors_mpu;
 
@@ -263,9 +276,9 @@ static void init_mpu(void) small {
         printf(MSG_FMT_ERR_MPU_WHOAMI_MISMATCH, (int)who_am_i, (int)MPU_SIGNATURE_WHOAMI);
         while (1) {
             set_led(MASK_LED_PYR);
-            SYS_Delay(1000);
+            sleep_10ms_pd(100);
             set_led(0);
-            SYS_Delay(1000);
+            sleep_10ms_pd(100);
         }
     }
 
@@ -279,7 +292,7 @@ static void init_mpu(void) small {
 
     for (i = 0; i < 8; i++) {
         set_led(0x01u << i);
-        SYS_Delay(250);
+        sleep_10ms_pd(25);
     }
     set_led(0);
 
@@ -288,7 +301,7 @@ static void init_mpu(void) small {
         gyro_bias_l[0] += (long)(gyro_s[0] - MPU_CALIB_GYRO_X_GOAL);
         gyro_bias_l[1] += (long)(gyro_s[1] - MPU_CALIB_GYRO_Y_GOAL);
         gyro_bias_l[2] += (long)(gyro_s[2] - MPU_CALIB_GYRO_Z_GOAL);
-        SYS_Delay(10);
+        sleep_10ms_pd(1);
     }
     gyro_bias_l[0] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[1] /= MPU_CALIB_SAMPLES;
@@ -297,10 +310,10 @@ static void init_mpu(void) small {
 
     for (i = 0; i < 8; i++) {
         set_led(0x80u >> i);
-        SYS_Delay(250);
+        sleep_10ms_pd(25);
     }
     set_led(0);
-    SYS_Delay(100);
+    sleep_10ms_pd(10);
 
     dmp_load_motion_driver_firmware();
     dmp_set_fifo_rate(MPU_REFRESH_RATE_HZ);
@@ -308,7 +321,7 @@ static void init_mpu(void) small {
     mpu_set_gyro_bias_reg(gyro_bias_l);
     dmp_set_gyro_bias(gyro_bias_l);
     dmp_enable_feature(DMP_FEATURE_SEND_RAW_GYRO | DMP_FEATURE_6X_LP_QUAT);
-    SYS_Delay(100);
+    sleep_10ms_pd(10);
 
     printf(MSG_FMT_INFO_MPU_INIT_END);
 }
@@ -318,12 +331,12 @@ void main(void) small {
 
     init_periph();
     set_led(0);
-    SYS_Delay(1000);
+    sleep_10ms_pd(100);
     init_mpu();
 
     do {
         refresh_dmp();
         set_led(get_led_mask_by_q());
-        SYS_Delay(10);
+        sleep_10ms_pd(1);
     } while (1);
 }
