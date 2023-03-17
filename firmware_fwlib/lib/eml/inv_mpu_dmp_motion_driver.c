@@ -491,57 +491,6 @@ __BIT dmp_set_gyro_bias(long *bias)
     return mpu_write_mem(D_EXT_GYRO_BIAS_Z, 4, regs);
 }
 
-
-#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
-
-/**
- *  @brief      Push accel biases to the DMP.
- *  These biases will be removed from the DMP 6-axis quaternion.
- *  @param[in]  bias    Accel biases in q16.
- *  @return     0 if successful.
- */
-__BIT dmp_set_accel_bias(long *bias)
-{
-    long accel_bias_body[3];
-    unsigned char regs[12];
-    long accel_sf;
-    unsigned short accel_sens;
-
-    mpu_get_accel_sens(&accel_sens);
-    accel_sf = accel_sens << 15;
-    __no_operation();
-
-    accel_bias_body[0] = bias[dmp.orient & 3];
-    if (dmp.orient & 4)
-        accel_bias_body[0] *= -1;
-    accel_bias_body[1] = bias[(dmp.orient >> 3) & 3];
-    if (dmp.orient & 0x20)
-        accel_bias_body[1] *= -1;
-    accel_bias_body[2] = bias[(dmp.orient >> 6) & 3];
-    if (dmp.orient & 0x100)
-        accel_bias_body[2] *= -1;
-
-    accel_bias_body[0] = (long)(((float)accel_bias_body[0] * accel_sf) / 1073741824.f);
-    accel_bias_body[1] = (long)(((float)accel_bias_body[1] * accel_sf) / 1073741824.f);
-    accel_bias_body[2] = (long)(((float)accel_bias_body[2] * accel_sf) / 1073741824.f);
-
-    regs[0] = (unsigned char)((accel_bias_body[0] >> 24) & 0xFF);
-    regs[1] = (unsigned char)((accel_bias_body[0] >> 16) & 0xFF);
-    regs[2] = (unsigned char)((accel_bias_body[0] >> 8) & 0xFF);
-    regs[3] = (unsigned char)(accel_bias_body[0] & 0xFF);
-    regs[4] = (unsigned char)((accel_bias_body[1] >> 24) & 0xFF);
-    regs[5] = (unsigned char)((accel_bias_body[1] >> 16) & 0xFF);
-    regs[6] = (unsigned char)((accel_bias_body[1] >> 8) & 0xFF);
-    regs[7] = (unsigned char)(accel_bias_body[1] & 0xFF);
-    regs[8] = (unsigned char)((accel_bias_body[2] >> 24) & 0xFF);
-    regs[9] = (unsigned char)((accel_bias_body[2] >> 16) & 0xFF);
-    regs[10] = (unsigned char)((accel_bias_body[2] >> 8) & 0xFF);
-    regs[11] = (unsigned char)(accel_bias_body[2] & 0xFF);
-    return mpu_write_mem(D_ACCEL_BIAS, 12, regs);
-}
-
-#endif /* 0 */
-
 /**
  *  @brief      Set DMP output rate.
  *  Only used when DMP is on.
@@ -739,7 +688,7 @@ __BIT dmp_enable_6x_lp_quat(__BIT enable)
         regs[2] = DINA30;
         regs[3] = DINA38;
     } else
-        memset(regs, 0xA3, 4);
+    memset(regs, 0xA3, 4);
 
     mpu_write_mem(CFG_8, 4, regs);
 
@@ -765,8 +714,7 @@ __BIT dmp_enable_6x_lp_quat(__BIT enable)
  *  @param[out] more        Number of remaining packets.
  *  @return     0 if successful.
  */
-__BIT dmp_read_fifo(short *gyro, short *accel, long *quat, short *sensors, unsigned char *more)
-{
+__BIT dmp_read_fifo(short *gyro, short *accel, long *quat, short *sensors, unsigned char *more) {
     unsigned char fifo_data[MAX_PACKET_LENGTH];
     unsigned char ii = 0;
 
@@ -813,7 +761,7 @@ __BIT dmp_read_fifo(short *gyro, short *accel, long *quat, short *sensors, unsig
             sensors[0] = 0;
             return 1;
         }
-        sensors[0] |= INV_WXYZ_QUAT;
+    sensors[0] |= INV_WXYZ_QUAT;
     }
 
     if (dmp.feature_mask & DMP_FEATURE_SEND_RAW_ACCEL) {
@@ -823,7 +771,7 @@ __BIT dmp_read_fifo(short *gyro, short *accel, long *quat, short *sensors, unsig
         ii += 6;
         sensors[0] |= INV_XYZ_ACCEL;
     }
-
+    
     if (dmp.feature_mask & DMP_FEATURE_SEND_ANY_GYRO) {
         gyro[0] = ((short)fifo_data[ii+0] << 8) | fifo_data[ii+1];
         gyro[1] = ((short)fifo_data[ii+2] << 8) | fifo_data[ii+3];

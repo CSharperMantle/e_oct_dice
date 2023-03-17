@@ -35,9 +35,6 @@ __BIT dmp_load_motion_driver_firmware(void);
 __BIT dmp_set_fifo_rate(unsigned short rate);
 __BIT dmp_enable_feature(unsigned short mask);
 __BIT dmp_set_gyro_bias(long *bias);
-#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
-__BIT dmp_set_accel_bias(long *bias);
-#endif /* 0 */
 
 /* LP quaternion functions. */
 __BIT dmp_enable_lp_quat(__BIT enable);

@@ -417,11 +417,6 @@
               <FilePath>.\lib\fwlib\fw_sys.c</FilePath>
             </File>
             <File>
-              <FileName>fw_tim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lib\fwlib\fw_tim.c</FilePath>
-            </File>
-            <File>
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\lib\fwlib\fw_uart.c</FilePath>
@@ -841,11 +836,6 @@
               <FilePath>.\lib\fwlib\fw_sys.c</FilePath>
             </File>
             <File>
-              <FileName>fw_tim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lib\fwlib\fw_tim.c</FilePath>
-            </File>
-            <File>
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\lib\fwlib\fw_uart.c</FilePath>
@@ -1263,11 +1253,6 @@
               <FileName>fw_sys.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\lib\fwlib\fw_sys.c</FilePath>
-            </File>
-            <File>
-              <FileName>fw_tim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lib\fwlib\fw_tim.c</FilePath>
             </File>
             <File>
               <FileName>fw_uart.c</FileName>

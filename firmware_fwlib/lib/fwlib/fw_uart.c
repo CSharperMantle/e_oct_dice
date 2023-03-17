@@ -14,8 +14,6 @@
 // limitations under the License.
 
 #include "fw_uart.h"
-#include "fw_tim.h"
-#include "fw_sys.h"
 
 int putchar(int dat) {
     UART1_WriteBuffer(dat);

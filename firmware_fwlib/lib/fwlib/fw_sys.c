@@ -43,12 +43,3 @@ void SYS_Delay(uint16_t t) small
             NOP();
     } while (--t);
 }
-
-#if 0 /* DISABLED FOR UNUSED FUNCTIONS */
-
-uint32_t SYS_GetSysClock(void) small
-{
-    return ((uint32_t)__CONF_FOSC) / clkdiv;
-}
-
-#endif /* 0 */

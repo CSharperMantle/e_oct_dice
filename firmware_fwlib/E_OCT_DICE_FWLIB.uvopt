@@ -48,7 +48,7 @@
         <ListingPath>.\Listings\</ListingPath>
       </OPTLEX>
       <ListingPage>
-        <CreateCListing>0</CreateCListing>
+        <CreateCListing>1</CreateCListing>
         <CreateAListing>0</CreateAListing>
         <CreateLListing>1</CreateLListing>
         <CreateIListing>0</CreateIListing>
@@ -201,7 +201,7 @@
         <ListingPath>.\Listings\</ListingPath>
       </OPTLEX>
       <ListingPage>
-        <CreateCListing>0</CreateCListing>
+        <CreateCListing>1</CreateCListing>
         <CreateAListing>0</CreateAListing>
         <CreateLListing>1</CreateLListing>
         <CreateIListing>0</CreateIListing>
@@ -354,7 +354,7 @@
         <ListingPath>.\Listings\</ListingPath>
       </OPTLEX>
       <ListingPage>
-        <CreateCListing>0</CreateCListing>
+        <CreateCListing>1</CreateCListing>
         <CreateAListing>0</CreateAListing>
         <CreateLListing>1</CreateLListing>
         <CreateIListing>0</CreateIListing>
@@ -577,18 +577,6 @@
     <File>
       <GroupNumber>3</GroupNumber>
       <FileNumber>7</FileNumber>
-      <FileType>1</FileType>
-      <tvExp>0</tvExp>
-      <tvExpOptDlg>0</tvExpOptDlg>
-      <bDave2>0</bDave2>
-      <PathWithFileName>.\lib\fwlib\fw_tim.c</PathWithFileName>
-      <FilenameWithoutPath>fw_tim.c</FilenameWithoutPath>
-      <RteFlg>0</RteFlg>
-      <bShared>0</bShared>
-    </File>
-    <File>
-      <GroupNumber>3</GroupNumber>
-      <FileNumber>8</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
