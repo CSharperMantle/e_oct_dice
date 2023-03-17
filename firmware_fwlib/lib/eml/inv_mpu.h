@@ -48,7 +48,6 @@ __BIT mpu_set_bypass(unsigned char bypass_on);
 
 /* Configuration APIs */
 __BIT mpu_lp_accel_mode(unsigned short rate);
-__BIT mpu_set_int_level(unsigned char active_low);
 __BIT mpu_set_int_latched(unsigned char enable);
 __BIT mpu_set_dmp_state(unsigned char enable);
 __BIT mpu_set_lpf(unsigned short lpf);
@@ -58,7 +57,7 @@ __BIT mpu_set_sample_rate(unsigned short rate);
 __BIT mpu_configure_fifo(unsigned char sensors);
 __BIT mpu_set_sensors(unsigned char sensors);
 
-__BIT mpu_set_gyro_bias_reg(const long * gyro_bias);
+__BIT mpu_set_gyro_bias_reg(const long *gyro_bias);
 
 /* Data getter/setter APIs */
 __BIT mpu_read_fifo(short *gyro, short *accel, unsigned char *sensors, unsigned char *more);

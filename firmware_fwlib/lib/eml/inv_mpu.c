@@ -1220,17 +1220,6 @@ __BIT mpu_set_bypass(unsigned char bypass_on)
 }
 
 /**
- *  @brief      Set interrupt level.
- *  @param[in]  active_low  1 for active low, 0 for active high.
- *  @return     0 if successful.
- */
-__BIT mpu_set_int_level(unsigned char active_low)
-{
-    st_chip_cfg.active_low_int = active_low;
-    return 0;
-}
-
-/**
  *  @brief      Enable latched interrupts.
  *  Any MPU register will clear the interrupt.
  *  @param[in]  enable  1 to enable, 0 to disable.
