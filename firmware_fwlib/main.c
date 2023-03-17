@@ -125,7 +125,7 @@ static void init_periph(void) small {
 
 #define MSG_FMT_INFO_MPU_INIT_BEGIN "I\tIB\tMPU\r\n"
 #define MSG_FMT_INFO_MPU_INIT_END "I\tIE\tMPU\r\n"
-#define MSG_FMT_INFO_MPU_BIAS_CALIB_DONE "I\tD\tMPU\tBIAS\t%d\t%d\t%d\r\n"
+#define MSG_FMT_INFO_MPU_GYRO_BIAS_CALIB_DONE "I\tD\tMPU\tGB\t%d\t%d\t%d\r\n"
 #define MSG_FMT_INFO_FACE_DETECTED "I\tF\t%d\t%f\t%f\t%f\r\n"
 #define MSG_FMT_ERR_MPU_WHOAMI_MISMATCH "E\tH\tMPU\tWHOAMI\t%d\t%d\r\n"
 
@@ -206,6 +206,7 @@ static void sleep_10ms_pd(unsigned char count) small {
         RCC_SetPowerDownWakeupTimerCountdown(0x18);
         RCC_SetPowerDownWakeupTimerState(HAL_State_ON);
         RCC_SetPowerDownMode(HAL_State_ON);
+        NOP();
         NOP();
         NOP();
         NOP();
@@ -306,7 +307,7 @@ static void init_mpu(void) small {
     gyro_bias_l[0] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[1] /= MPU_CALIB_SAMPLES;
     gyro_bias_l[2] /= MPU_CALIB_SAMPLES;
-    printf(MSG_FMT_INFO_MPU_BIAS_CALIB_DONE, (int)gyro_bias_l[0], (int)gyro_bias_l[1], (int)gyro_bias_l[2]);
+    printf(MSG_FMT_INFO_MPU_GYRO_BIAS_CALIB_DONE, (int)gyro_bias_l[0], (int)gyro_bias_l[1], (int)gyro_bias_l[2]);
 
     for (i = 0; i < 8; i++) {
         set_led(0x80u >> i);
