@@ -123,6 +123,7 @@ static void init_periph(void) small {
 #define MPU_CALIB_SAMPLES 128
 #define MPU_REFRESH_RATE_HZ 200
 
+#define MSG_FMT_INFO_HELO "I\tHELO\r\n"
 #define MSG_FMT_INFO_MPU_INIT_BEGIN "I\tIB\tMPU\r\n"
 #define MSG_FMT_INFO_MPU_INIT_END "I\tIE\tMPU\r\n"
 #define MSG_FMT_INFO_MPU_GYRO_BIAS_CALIB_DONE "I\tD\tMPU\tGB\t%d\t%d\t%d\r\n"
@@ -203,15 +204,15 @@ static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) sm
 
 static void sleep_10ms_pd(unsigned char count) small {
     do {
-        RCC_SetPowerDownWakeupTimerCountdown(0x18);
-        RCC_SetPowerDownWakeupTimerState(HAL_State_ON);
+        WKTCL = 0x18;
+        WKTCH = 0x80;
         RCC_SetPowerDownMode(HAL_State_ON);
         NOP();
         NOP();
         NOP();
         NOP();
         NOP();
-        RCC_SetPowerDownWakeupTimerState(HAL_State_OFF);
+        WKTCH = 0x00;
     } while (--count);
 }
 
@@ -331,6 +332,7 @@ void main(void) small {
     EXTI_Global_SetIntState(HAL_State_ON);
 
     init_periph();
+    printf(MSG_FMT_INFO_HELO);
     set_led(0);
     sleep_10ms_pd(100);
     init_mpu();
