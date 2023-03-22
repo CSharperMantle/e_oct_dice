@@ -412,14 +412,19 @@
               <FilePath>.\lib\fwlib\fw_i2c.c</FilePath>
             </File>
             <File>
-              <FileName>fw_sys.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lib\fwlib\fw_sys.c</FilePath>
-            </File>
-            <File>
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\lib\fwlib\fw_uart.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib/pd_sleep</GroupName>
+          <Files>
+            <File>
+              <FileName>pd_sleep.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\pd_sleep\pd_sleep.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -831,14 +836,19 @@
               <FilePath>.\lib\fwlib\fw_i2c.c</FilePath>
             </File>
             <File>
-              <FileName>fw_sys.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lib\fwlib\fw_sys.c</FilePath>
-            </File>
-            <File>
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\lib\fwlib\fw_uart.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib/pd_sleep</GroupName>
+          <Files>
+            <File>
+              <FileName>pd_sleep.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\pd_sleep\pd_sleep.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1250,14 +1260,19 @@
               <FilePath>.\lib\fwlib\fw_i2c.c</FilePath>
             </File>
             <File>
-              <FileName>fw_sys.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\lib\fwlib\fw_sys.c</FilePath>
-            </File>
-            <File>
               <FileName>fw_uart.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\lib\fwlib\fw_uart.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>lib/pd_sleep</GroupName>
+          <Files>
+            <File>
+              <FileName>pd_sleep.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\lib\pd_sleep\pd_sleep.c</FilePath>
             </File>
           </Files>
         </Group>

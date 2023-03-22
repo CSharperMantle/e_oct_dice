@@ -17,7 +17,6 @@
 #define ___FW_INC_H___
 
 #include "fw_conf.h"
-#include "fw_sys.h"
 #include "fw_rcc.h"
 #include "fw_exti.h"
 #include "fw_gpio.h"

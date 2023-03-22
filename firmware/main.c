@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "fwlib/fw_hal.h"
+#include "pd_sleep/pd_sleep.h"
 #include "eml/inv_mpu.h"
 #include "eml/inv_mpu_dmp_motion_driver.h"
 
@@ -200,20 +201,6 @@ static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) sm
     vec3_mul(vec3_tmp_2, s_tmp_2, vec3_tmp_2);
 
     vec3_add(vec3_tmp_1, vec3_tmp_2, vec3_out);
-}
-
-static void sleep_10ms_pd(unsigned char count) small {
-    do {
-        WKTCL = 0x18;
-        WKTCH = 0x80;
-        RCC_SetPowerDownMode(HAL_State_ON);
-        NOP();
-        NOP();
-        NOP();
-        NOP();
-        NOP();
-        WKTCH = 0x00;
-    } while (--count);
 }
 
 static void refresh_mpu(void) small {

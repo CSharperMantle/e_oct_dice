@@ -17,10 +17,11 @@
 #include <math.h>
 #include "inv_mpu.h"
 #include "fwlib/fw_hal.h"
+#include "pd_sleep/pd_sleep.h"
 
 #define i2c_write(addr, reg, len, data_) I2C_Write(addr, reg, data_, len)
 #define i2c_read(addr, reg, len, data_) I2C_Read(addr, reg, data_, len)
-#define delay_ms(ms)            SYS_Delay(ms)
+#define delay_ms(ms)            sleep_1ms_pd(ms)
 #define min(a, b)               (((a) < (b)) ? (a) : (b))
 
 #if !defined MPU6050 && !defined MPU9150 && !defined MPU6500 && !defined MPU9250
@@ -1180,7 +1181,7 @@ __BIT mpu_read_fifo_stream(unsigned short length, unsigned char *data_,
  *  @param[in]  bypass_on   1 to enable bypass mode.
  *  @return     0 if successful.
  */
-__BIT mpu_set_bypass(unsigned char bypass_on)
+__BIT mpu_set_bypass(__BIT bypass_on)
 {
     unsigned char tmp;
 
@@ -1225,7 +1226,7 @@ __BIT mpu_set_bypass(unsigned char bypass_on)
  *  @param[in]  enable  1 to enable, 0 to disable.
  *  @return     0 if successful.
  */
-__BIT mpu_set_int_latched(unsigned char enable)
+__BIT mpu_set_int_latched(__BIT enable)
 {
     unsigned char tmp;
     if (st_chip_cfg.latched_int == enable)
@@ -1355,7 +1356,7 @@ __BIT mpu_load_firmware(unsigned short length, const unsigned char __CODE *firmw
  *  @param[in]  enable  1 to turn on the DMP.
  *  @return     0 if successful.
  */
-__BIT mpu_set_dmp_state(unsigned char enable)
+__BIT mpu_set_dmp_state(__BIT enable)
 {
     unsigned char tmp;
     if (st_chip_cfg.dmp_on == enable)

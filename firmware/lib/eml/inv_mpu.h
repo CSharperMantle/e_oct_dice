@@ -42,14 +42,13 @@
 #define MPU_INT_STATUS_DMP_5            (0x2000)
 
 /* Set up APIs */
-__BIT mpu_init();
-__BIT mpu_init_slave(void);
-__BIT mpu_set_bypass(unsigned char bypass_on);
+__BIT mpu_init(void);
+__BIT mpu_set_bypass(__BIT bypass_on);
 
 /* Configuration APIs */
 __BIT mpu_lp_accel_mode(unsigned short rate);
-__BIT mpu_set_int_latched(unsigned char enable);
-__BIT mpu_set_dmp_state(unsigned char enable);
+__BIT mpu_set_int_latched(__BIT enable);
+__BIT mpu_set_dmp_state(__BIT enable);
 __BIT mpu_set_lpf(unsigned short lpf);
 __BIT mpu_set_gyro_fsr(unsigned short fsr);
 __BIT mpu_set_accel_fsr(unsigned char fsr);

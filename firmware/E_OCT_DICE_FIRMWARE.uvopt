@@ -569,20 +569,28 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\lib\fwlib\fw_sys.c</PathWithFileName>
-      <FilenameWithoutPath>fw_sys.c</FilenameWithoutPath>
+      <PathWithFileName>.\lib\fwlib\fw_uart.c</PathWithFileName>
+      <FilenameWithoutPath>fw_uart.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
+  </Group>
+
+  <Group>
+    <GroupName>lib/pd_sleep</GroupName>
+    <tvExp>1</tvExp>
+    <tvExpOptDlg>0</tvExpOptDlg>
+    <cbSel>0</cbSel>
+    <RteFlg>0</RteFlg>
     <File>
-      <GroupNumber>3</GroupNumber>
+      <GroupNumber>4</GroupNumber>
       <FileNumber>7</FileNumber>
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>.\lib\fwlib\fw_uart.c</PathWithFileName>
-      <FilenameWithoutPath>fw_uart.c</FilenameWithoutPath>
+      <PathWithFileName>.\lib\pd_sleep\pd_sleep.c</PathWithFileName>
+      <FilenameWithoutPath>pd_sleep.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
