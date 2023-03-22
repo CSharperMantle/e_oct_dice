@@ -10,15 +10,15 @@ A low-cost, open-source recreation of elemental octahedral dice in Genius Invoka
 
 This project is divided into subdirectories listed below:
 
-* [`firmware_fwlib/`](firmware_fwlib/): Keil C firmware project for onboard MCU
+* [`firmware/`](firmware/): C firmware project for onboard MCU
 * [`hardware/`](hardware/): Schematic and PCB designs
 * [`physical/`](physical/): 3D solid shell designs
 
 ## Software requirements
 
 * **Keil uVision 5** ([link](https://www.keil.com/product/)) to build firmware
-* **STC-ISP v6** ([link](https://stcai.com/gjrj)) to program the MCU
-* **LCEDA (嘉立创EDA)** ([link](https://lceda.cn/)) to view, edit and prepare schematic and PCB designs
+* **STC-ISP 6** ([link](https://stcai.com/gjrj)) to program the MCU
+* **EasyEDA** ([link](https://lceda.cn/)) to view, edit and prepare schematic and PCB designs
 * **PTC Creo 5** ([link](https://www.ptc.com/en/products/creo)) to view, edit and prepare physical designs
 
 ## License
