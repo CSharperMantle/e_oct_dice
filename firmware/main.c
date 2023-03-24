@@ -146,7 +146,7 @@ __CODE const float ARR_VEC3_FACES_ORIENT[8][3] = {
 /* Raw readings */
 static __DATA short gyro_s[3] = {0};
 /* Computed orientation */
-static __DATA float quat_f[4] = {0.0f, 0.0f, 0.0f, 0.0f};
+static __DATA float vec4_quat_f[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 /* Bias for gyro, to be added to final readings */
 static __IDATA long gyro_bias_l[3] = {0};
 
@@ -174,20 +174,20 @@ static void vec3_add(const float *vec3_x, const float *vec3_y, float *vec3_out) 
     vec3_out[2] = vec3_x[2] + vec3_y[2];
 }
 
-static void rotate(const float *vec3_v, const float *vec4_q, float *vec3_out) small {
-    float s_tmp_1 = 0.0f, s_tmp_2 = 0.0f;
-    float *vec3_u = NULL;
-    float vec3_tmp_1[3] = {0.0f, 0.0f, 0.0f}, vec3_tmp_2[3] = {0.0f, 0.0f, 0.0f};
+static void rotate_by_quat(const float *vec3_v, float *vec3_out) small {
+    float s_tmp_1, s_tmp_2, vec3_tmp_1[3], vec3_tmp_2[3];
+    float *vec3_u;
 
     vec3_out[0] = vec3_out[1] = vec3_out[2] = 0.0f;
     
-    vec3_u = &vec4_q[1];
+    // Read quaternion from global scope `vec4_quat_f`.
+    vec3_u = &vec4_quat_f[1];
 
     s_tmp_1 = vec3_dot(vec3_u, vec3_v);
     s_tmp_1 *= 2.0f;
     vec3_mul(vec3_u, s_tmp_1, vec3_tmp_1);
 
-    s_tmp_1 = vec4_q[0];
+    s_tmp_1 = vec4_quat_f[0];
 
     s_tmp_2 = vec3_dot(vec3_u, vec3_u);
     s_tmp_2 = -(s_tmp_2);
@@ -220,10 +220,10 @@ static void refresh_dmp(void) small {
         dmp_read_fifo(gyro_s, NULL, quat_l, &sensors_mpu, &more);
     } while (more);
 
-    quat_f[0] = (float)quat_l[0] / Q30;
-    quat_f[1] = (float)quat_l[1] / Q30;
-    quat_f[2] = (float)quat_l[2] / Q30;
-    quat_f[3] = (float)quat_l[3] / Q30;
+    vec4_quat_f[0] = (float)quat_l[0] / Q30;
+    vec4_quat_f[1] = (float)quat_l[1] / Q30;
+    vec4_quat_f[2] = (float)quat_l[2] / Q30;
+    vec4_quat_f[3] = (float)quat_l[3] / Q30;
 }
 
 static void set_led(unsigned char leds) small {
@@ -242,13 +242,13 @@ static unsigned char get_led_mask_by_q(void) small {
     unsigned char final_mask = 0, i;
 
     for (i = 0; i < 8; i++) {
-        rotate(ARR_VEC3_FACES_ORIENT[i], quat_f, vec3_out);
+        rotate_by_quat(ARR_VEC3_FACES_ORIENT[i], vec3_out);
         if (IS_IN_RANGE_EPS(vec3_out[0], 0.0f, 0.2f)
             && IS_IN_RANGE_EPS(vec3_out[1], 0.0f, 0.2f)
             && IS_IN_RANGE_EPS(vec3_out[2], 1.0f, 0.2f)) {
             final_mask |= 0x01u << i;
-        printf(MSG_FMT_INFO_FACE_DETECTED, (int)i, vec3_out[0], vec3_out[1], vec3_out[2]);
-    }
+            printf(MSG_FMT_INFO_FACE_DETECTED, (int)i, vec3_out[0], vec3_out[1], vec3_out[2]);
+        }
     }
 
     return final_mask;
