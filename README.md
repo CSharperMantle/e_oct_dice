@@ -13,6 +13,7 @@ This project is divided into subdirectories listed below:
 * [`firmware/`](firmware/): C firmware project for onboard MCU
 * [`hardware/`](hardware/): Schematic and PCB designs
 * [`physical/`](physical/): 3D solid shell designs
+* [`assets/`](assets/): Other assets and non-code files
 
 ## Software requirements
 
@@ -57,7 +58,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 You may also obtain a copy of this license at [LICENSE-BSD](LICENSE-BSD).
 
-### PCB, schematic, physical design and everything else: CC BY-SA 4.0 International
+### Non-code files: CC BY-SA 4.0 International
 
 This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
