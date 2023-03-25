@@ -75,3 +75,13 @@ You may also obtain a copy of the legal code of this license at [LICENSE-CC-BYSA
 **License:** Apache 2.0 license
 
 Adaptation and minor modifications have been made to this library to match project use cases. These modifications have been attributed in respective files. 
+
+### [genshin-icon](https://github.com/cchampou/genshin-icon)
+
+**Author:** @cchampou ([link](https://github.com/cchampou))
+
+**Description:** A set of Genshin Impact icons in React components
+
+**License:** MIT license
+
+SVG files have been extracted from the React components with minor modification and patches.
