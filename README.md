@@ -24,7 +24,7 @@ This project is divided into subdirectories listed below:
 
 ## License
 
-### Firmware code: GNU GPLv3 or later
+The firmware code, as contained in [`firmware/`](firmware/) directory but not in [`firmware/lib/`](firmware/lib/), is licensed under a **GNU General Public License, Version 3** or any later versions.
 
 ```plain
 Copyright (c) 2022-2023 Rong Bao (CSharperMantle) <baorong2005@126.com>
@@ -45,13 +45,13 @@ along with this program.  If not, see https://www.gnu.org/licenses/.
 
 You may also obtain a copy of this license at [LICENSE-GPL](LICENSE-GPL).
 
-### Non-code files: CC BY-SA 4.0 International
-
-This work is licensed under the Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
+In this project, the hardware designs, as contained in [`hardware/`](hardware/), and the physical designs, as contained in [`physical/`](physical/), are licensed under the **Creative Commons Attribution-ShareAlike 4.0 International License**. To view a copy of this license, visit http://creativecommons.org/licenses/by-sa/4.0/ or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
 
 You may also obtain a copy of the legal code of this license at [LICENSE-CC-BYSA-40](LICENSE-CC-BYSA-40).
 
-## OSS used in this project
+Libraries and other assets used in this projects are licensed under their respective, some non-OSS, licenses.
+
+## Third-party resources used in this project
 
 ### [FwLib_STC8](https://github.com/IOsetting/FwLib_STC8)
 
