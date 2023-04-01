@@ -24,7 +24,7 @@ OS2Version: 0
 OS2_WeightWidthSlopeOnly: 0
 OS2_UseTypoMetrics: 1
 CreationTime: 1680263868
-ModificationTime: 1680323570
+ModificationTime: 1680323672
 PfmFamily: 17
 TTFWeight: 400
 TTFWidth: 5
@@ -44,8 +44,6 @@ HheadAOffset: 1
 HheadDescent: 0
 HheadDOffset: 1
 OS2Vendor: 'PfEd'
-OS2CodePages: 00000001.40000000
-OS2UnicodeRanges: 00000001.00000000.00000000.00000000
 MarkAttachClasses: 1
 DEI: 91125
 LangName: 1033
@@ -669,7 +667,7 @@ EndChar
 StartChar: h
 Encoding: 104 104 7
 Width: 1024
-Flags: WO
+Flags: W
 HStem: 170.952 114.652<381.46 614.555> 346.108 112.961<460.472 549.326> 655.813 121.914<127.511 394.866 635.726 893.786>
 VStem: 246.848 104.641<157.027 405.16> 448.419 112.96<358.162 447.016> 670.417 96.3818<398.613 526.95>
 LayerCount: 2
